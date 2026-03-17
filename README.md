@@ -2,7 +2,7 @@
 
 A browser-based implementation of the classic French card game Mille Bornes, playable solo against an AI opponent.
 
-**[Play now](https://jon-rosenfeld.github.io/mille)** — no installation required.
+**[Play now](https://jon-rosenfeld.github.io/Mille)** — no installation required.
 
 ---
 
