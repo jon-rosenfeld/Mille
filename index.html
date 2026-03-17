@@ -1,0 +1,3437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mille Bornes</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800&family=Libre+Baskerville:ital@1&display=swap" rel="stylesheet">
+<style>
+:root {
+  --white: #f8f8f2;
+  --card-bg: #f5f5ee;
+  --lime: #8cc63f;
+  --lime-dark: #6a9e28;
+  --red: #d42b2b;
+  --red-dark: #a01e1e;
+  --cobalt: #1a5fa8;
+  --cobalt-dark: #104080;
+  --ink: #1a1a1a;
+  --gray: #888;
+  --gold: #e8a020;
+  --green: #2a8a40;
+  --table-bg: #1a6b3a;
+  --card-w: 90px;
+  --card-h: 128px;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body {
+  background: var(--table-bg);
+  background-image:
+    radial-gradient(ellipse at 50% 0%, rgba(255,255,255,0.06) 0%, transparent 60%),
+    repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(0,0,0,0.03) 40px, rgba(0,0,0,0.03) 41px),
+    repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(0,0,0,0.03) 40px, rgba(0,0,0,0.03) 41px);
+  font-family: 'Nunito', sans-serif;
+  color: var(--ink);
+  min-height: 100vh;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 12px 10px 32px;
+  user-select: none;
+}
+
+/* ── HEADER ── */
+.header {
+  text-align: center; margin-bottom: 12px;
+}
+.header-logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2.6rem; letter-spacing: 0.15em;
+  color: var(--white);
+  text-shadow: 3px 3px 0 rgba(0,0,0,0.4);
+  line-height: 1;
+}
+.header-logo span { color: var(--lime); }
+.header-sub { font-size: 0.6rem; letter-spacing: 0.35em; color: rgba(255,255,255,0.5); text-transform: uppercase; margin-top: 2px; }
+
+/* ── SCOREBAR ── */
+.scorebar { display:none; } /* removed — info moved to middle strip */
+
+/* ── SCORE BADGE — in phead ── */
+.score-badge {
+  font-family:'Bebas Neue',sans-serif; font-size:0.9rem;
+  background: rgba(0,0,0,0.4); color: var(--gold);
+  padding: 1px 10px; border-radius: 3px;
+  border: 1px solid rgba(232,160,32,0.3); letter-spacing:0.05em;
+}
+.score-badge.winning { color: var(--lime); border-color: rgba(140,198,63,0.4); }
+
+/* ── MIDDLE STRIP ELEMENTS — unified visual language ── */
+/* Shared tile base */
+.mid-tile {
+  border-radius:6px;
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.12);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:2px;
+}
+
+.mid-btn-strip { display:flex; gap:6px; flex-shrink:0; }
+
+.mid-strip-btn {
+  width:90px; height:93px; cursor:pointer;
+  transition:background 0.15s, border-color 0.15s;
+}
+.mid-strip-btn:hover { background:rgba(255,255,255,0.11); border-color:rgba(255,255,255,0.25); }
+.mid-strip-btn .msb-icon { font-size:1.3rem; line-height:1; }
+.mid-strip-btn .msb-title { font-size:0.56rem; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; color:rgba(255,255,255,0.75); text-align:center; }
+.mid-strip-btn .msb-sub { font-size:0.44rem; color:rgba(255,255,255,0.35); letter-spacing:0.04em; }
+.mid-strip-btn .msb-wl { font-size:0.58rem; font-weight:800; color:var(--lime); }
+
+.round-tile {
+  width:68px; height:93px; cursor:pointer; flex-shrink:0;
+  transition:background 0.15s, border-color 0.15s;
+}
+.round-tile:hover { background:rgba(255,255,255,0.11); border-color:rgba(255,255,255,0.25); }
+.round-tile .rt-lbl { font-size:0.44rem; letter-spacing:0.15em; text-transform:uppercase; color:rgba(255,255,255,0.4); }
+.round-tile .rt-num { font-family:'Bebas Neue',sans-serif; font-size:2rem; color:var(--gold); line-height:1; }
+.round-tile .rt-hint { font-size:0.38rem; letter-spacing:0.04em; text-transform:uppercase; color:rgba(255,255,255,0.25); text-align:center; line-height:1.3; }
+
+/* ── TRACKER WIDGET ── */
+.tracker-widget { position:relative; flex-shrink:0; }
+.tracker-compact {
+  display:flex; flex-direction:column; align-items:stretch;
+  border-radius:6px; cursor:pointer;
+  background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12);
+  padding:8px 12px; height:93px; justify-content:center;
+  transition:background 0.15s, border-color 0.15s;
+  user-select:none;
+}
+.tracker-compact:hover, .tracker-compact.pinned {
+  background:rgba(255,255,255,0.1); border-color:rgba(255,255,255,0.25);
+}
+.tc-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:5px; }
+.tc-lbl { font-size:0.52rem; letter-spacing:0.12em; text-transform:uppercase; color:rgba(255,255,255,0.4); font-weight:700; }
+.tc-sub { font-size:0.38rem; letter-spacing:0.04em; text-transform:uppercase; color:rgba(255,255,255,0.18); }
+.tc-cols { display:grid; grid-template-columns:1fr 1fr; gap:0 16px; }
+.tc-col-lbl { display:flex; align-items:baseline; gap:5px; font-size:0.38rem; letter-spacing:0.1em; text-transform:uppercase; color:rgba(255,255,255,0.22); margin-bottom:3px; }
+.tc-col-lbl .tc-name { visibility:hidden; } /* spacer matching name width */
+.tc-pair { display:flex; align-items:baseline; gap:5px; padding:2.5px 0; font-size:0.56rem; }
+.tc-pair .tc-name { color:rgba(255,255,255,0.38); min-width:28px; }
+.tc-pair .tc-hnum { font-weight:800; color:rgba(255,255,255,0.75); }
+.tc-pair .tc-hnum.danger { color:#ff5050; }
+.tc-pair .tc-sep { color:rgba(255,255,255,0.18); font-size:0.46rem; }
+.tc-pair .tc-rnum { font-weight:700; color:rgba(255,255,255,0.35); }
+.tc-pair.zeroed { opacity:0.45; }
+
+/* expanded panel */
+.tracker-expanded {
+  display:none; position:absolute; bottom:-75%; left:0; z-index:400;
+  width:320px; background:rgba(21,40,21,0.85);
+  border:1px solid rgba(255,255,255,0.15); border-radius:6px;
+  padding:12px 13px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  backdrop-filter: blur(6px);
+  cursor:pointer;
+}
+.tracker-expanded.show { display:block; }
+.te-section { font-size:0.5rem; font-weight:800; letter-spacing:0.14em; text-transform:uppercase; color:rgba(255,255,255,0.28); padding:6px 0 3px; border-top:1px solid rgba(255,255,255,0.07); margin-top:3px; }
+.te-section:first-child { border-top:none; padding-top:0; margin-top:0; }
+.te-legend { display:flex; justify-content:flex-end; gap:10px; margin-bottom:5px; }
+.te-legend-item { display:flex; align-items:center; gap:3px; }
+.te-legend-item span { font-size:0.52rem; color:rgba(255,255,255,0.28); }
+/* pair bar rows */
+.te-row { display:flex; align-items:center; gap:6px; padding:3px 0; }
+.te-name { font-size:0.56rem; color:rgba(255,255,255,0.65); width:76px; flex-shrink:0; }
+.te-track { flex:1; height:7px; background:rgba(255,255,255,0.07); border-radius:3px; position:relative; }
+.te-rem { position:absolute; left:0; top:0; height:100%; border-radius:3px; background:#2a8a40; }
+.te-haz { position:absolute; left:0; top:0; height:100%; border-radius:3px; }
+.te-counts { display:flex; flex-direction:column; align-items:flex-end; width:32px; flex-shrink:0; }
+.te-counts span { font-size:0.46rem; font-weight:700; line-height:1.45; }
+.te-pip { width:6px; height:6px; border-radius:50%; background:#ff4444; flex-shrink:0; margin-left:2px; }
+.te-nopip { width:8px; flex-shrink:0; }
+.te-row.zeroed .te-name { color:rgba(255,255,255,0.22); }
+/* distance rows */
+.td-row { display:flex; align-items:center; gap:6px; padding:2.5px 0; }
+.td-name { font-size:0.56rem; color:rgba(255,255,255,0.65); width:76px; flex-shrink:0; }
+.td-track { flex:1; height:6px; background:rgba(255,255,255,0.07); border-radius:3px; overflow:hidden; }
+.td-fill { height:100%; border-radius:3px; background:#5a8a20; }
+.td-num { font-size:0.48rem; color:rgba(255,255,255,0.38); width:32px; text-align:right; flex-shrink:0; }
+/* safety chips */
+.te-saf-grid { display:grid; grid-template-columns:1fr 1fr; gap:4px; margin-top:3px; }
+.te-saf-chip { border-radius:4px; padding:5px 6px; border:1px solid; display:flex; flex-direction:column; gap:2px; }
+.te-saf-chip.unknown { background:rgba(255,255,255,0.04); border-color:rgba(255,255,255,0.1); }
+.te-saf-chip.in-hand { background:rgba(26,95,168,0.15); border-color:rgba(26,95,168,0.5); }
+.te-saf-chip.played { background:rgba(26,95,168,0.22); border-color:rgba(26,95,168,0.65); }
+.te-saf-chip.played-cf { background:rgba(232,160,32,0.14); border-color:rgba(232,160,32,0.55); }
+.te-saf-chip.discarded { background:rgba(255,255,255,0.02); border-color:rgba(255,255,255,0.06); }
+.te-sc-name { font-size:0.5rem; font-weight:800; }
+.te-saf-chip.unknown .te-sc-name { color:rgba(255,255,255,0.45); }
+.te-saf-chip.in-hand .te-sc-name { color:#88b8f0; }
+.te-saf-chip.played .te-sc-name { color:#88b8f0; }
+.te-saf-chip.played-cf .te-sc-name { color:#e8a020; }
+.te-saf-chip.discarded .te-sc-name { color:rgba(255,255,255,0.18); }
+.te-sc-status { font-size:0.42rem; letter-spacing:0.04em; text-transform:uppercase; }
+.te-saf-chip.unknown .te-sc-status { color:rgba(255,255,255,0.22); }
+.te-saf-chip.in-hand .te-sc-status { color:rgba(136,184,240,0.65); }
+.te-saf-chip.played .te-sc-status { color:rgba(136,184,240,0.55); }
+.te-saf-chip.played-cf .te-sc-status { color:rgba(232,160,32,0.65); }
+.te-saf-chip.discarded .te-sc-status { color:rgba(255,255,255,0.14); }
+
+/* ── LAYOUT ── */
+.game { width:100%; max-width: 920px; display: flex; flex-direction: column; gap: 8px; }
+
+/* ── PLAYER AREAS ── */
+.parea {
+  background: rgba(0,0,0,0.25);
+  border: 2px solid rgba(255,255,255,0.12);
+  border-radius: 8px; padding: 10px 118px 10px 12px; /* right padding reserves space for distance pile */
+  position: relative;
+}
+.parea.you { border-color: rgba(140,198,63,0.5); background: rgba(0,0,0,0.3); }
+
+.phead { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; padding-bottom: 7px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+#ai-phead { margin-bottom: 0; margin-top: 8px; padding-bottom: 0; padding-top: 7px; border-bottom: none; border-top: 1px solid rgba(255,255,255,0.1); }
+
+/* score tiles — back in middle strip */
+.score-tiles { display:flex; flex-direction:column; gap:5px; flex-shrink:0; }
+.score-tile { width:88px; height:44px; }
+.score-tile .st-lbl { font-size:0.44rem; letter-spacing:0.1em; text-transform:uppercase; color:rgba(255,255,255,0.4); }
+.score-tile .st-val { font-family:'Bebas Neue',sans-serif; font-size:1.3rem; color:rgba(255,255,255,0.8); line-height:1; }
+.score-tile.st-winning { background:rgba(140,198,63,0.1); border-color:rgba(140,198,63,0.35); }
+.score-tile.st-winning .st-lbl { color:rgba(140,198,63,0.7); }
+.score-tile.st-winning .st-val { color:var(--lime); }
+.parea #ai-hand { margin-bottom: 10px; }
+#ai-battle { margin-bottom: 0; }
+.km-badge {
+  font-family:'Bebas Neue',sans-serif; font-size:0.9rem;
+  background: rgba(0,0,0,0.4); color: var(--lime);
+  padding: 1px 10px; border-radius: 3px;
+  border: 1px solid rgba(140,198,63,0.3); letter-spacing:0.05em;
+}
+.spd-warn { font-size:0.6rem; font-weight:800; background: var(--gold); color: var(--ink); padding:2px 6px; border-radius:3px; display:none; }
+.tbadge { margin-left:auto; font-size:0.52rem; font-weight:800; letter-spacing:0.15em; text-transform:uppercase; padding:3px 8px; border-radius:3px; }
+.tbadge.yours { background: var(--lime); color: var(--ink); }
+.tbadge.wait { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.4); }
+.tbadge.think { background: var(--cobalt); color:white; animation: pulse 1s infinite; }
+.tbadge.pop { animation: badgepop 0.35s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+@keyframes badgepop { from{transform:scale(0.7)} to{transform:scale(1)} }
+@keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.5} }
+
+/* ── BATTLE + SAFETIES ── */
+.battle-row { display:flex; gap:8px; flex-wrap:wrap; align-items:flex-start; margin-bottom:8px; }
+.zone { display:flex; flex-direction:column; align-items:center; gap:3px; }
+.zlbl { font-size:0.5rem; text-transform:uppercase; letter-spacing:0.15em; color:rgba(255,255,255,0.4); font-weight:700; }
+
+.safeties-strip { display:flex; gap:5px; flex-wrap:wrap; margin-bottom:6px; min-height:22px; }
+.stag {
+  display:flex; align-items:center; gap:5px;
+  border-radius:4px; padding:3px 8px 3px 5px;
+  font-size:0.6rem; font-weight:800; letter-spacing:0.05em; text-transform:uppercase;
+  border: 2px solid;
+}
+.stag.normal { background: rgba(26,95,168,0.2); border-color: var(--cobalt); color: #7ab0e8; }
+.stag.cf { background: rgba(212,43,43,0.2); border-color: var(--red); color: #ff8080; }
+.stag .sicon { width:18px; height:18px; }
+.cf-pip { font-size:0.48rem; background:var(--red); color:white; padding:1px 4px; border-radius:2px; font-weight:900; margin-left:2px; }
+
+/* Safety tiles grid */
+.safety-tiles {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 5px;
+  width: 128px; flex-shrink:0;
+}
+.stile {
+  border-radius:6px; padding: 6px 5px 5px;
+  display:flex; flex-direction:column; align-items:center; gap:3px;
+  border: 1.5px solid rgba(255,255,255,0.08);
+  background: rgba(0,0,0,0.3);
+  transition: all 0.35s ease;
+  position:relative; overflow:hidden; cursor:default;
+}
+.stile::before {
+  content:''; position:absolute; inset:0;
+  background: rgba(255,255,255,0.0);
+  transition: background 0.35s;
+}
+.stile.played { border-color: rgba(26,95,168,0.6); background: rgba(26,95,168,0.15); }
+.stile.played::before { background: rgba(26,95,168,0.05); }
+.stile.played-cf { border-color: var(--gold); background: rgba(232,160,32,0.12); box-shadow: 0 0 10px rgba(232,160,32,0.25), inset 0 0 8px rgba(232,160,32,0.08); }
+.stile .stile-icon { width:32px; height:32px; opacity:0.18; transition:opacity 0.35s, transform 0.35s; transform:scale(0.88); }
+.stile.played .stile-icon { opacity:1; transform:scale(1); }
+.stile.played-cf .stile-icon { opacity:1; transform:scale(1); }
+.stile .stile-name { font-size:0.42rem; font-weight:800; letter-spacing:0.04em; text-transform:uppercase; color:rgba(255,255,255,0.2); text-align:center; line-height:1.2; transition:color 0.35s; }
+.stile.played .stile-name { color:rgba(140,190,255,0.85); }
+.stile.played-cf .stile-name { color:var(--gold); }
+.stile .cf-badge { display:none; position:absolute; top:3px; right:3px; background:var(--gold); color:var(--ink); font-size:0.42rem; font-weight:900; padding:1px 3px; border-radius:2px; letter-spacing:0.05em; }
+.stile.played-cf .cf-badge { display:block; }
+
+/* ── CARDS ── */
+.card {
+  width: var(--card-w); height: var(--card-h);
+  border-radius: 7px;
+  border: 2px solid rgba(0,0,0,0.3);
+  background: var(--card-bg);
+  display: flex; flex-direction: column;
+  align-items: stretch;
+  position: relative; flex-shrink: 0;
+  overflow: hidden;
+  box-shadow: 1px 2px 6px rgba(0,0,0,0.4);
+  transition: transform 0.1s, box-shadow 0.1s;
+  cursor: default;
+}
+.card-top-band {
+  height: 22px; flex-shrink:0; width:100%;
+  display:flex; align-items:center; justify-content:center;
+  padding: 0 4px; text-align:center;
+}
+.card-top-band span {
+  font-size:0.52rem; font-weight:800; letter-spacing:0.05em;
+  text-transform:uppercase; color:white; line-height:1.2;
+}
+.card-art {
+  height: 82px; flex-shrink:0;
+  display: flex; align-items: center; justify-content: center;
+  padding: 3px; overflow:hidden;
+}
+.card-art svg { width:100%; height:100%; pointer-events:none; }
+.card-art img { pointer-events: none; width:100%; height:100%; object-fit:contain; }
+.card-bot-band {
+  height: 20px; flex-shrink:0; width:100%;
+  display:flex; align-items:center; justify-content:center;
+  padding: 0 3px; text-align:center;
+}
+.card-bot-band span {
+  font-size:0.46rem; font-weight:800; letter-spacing:0.06em;
+  text-transform:uppercase; color:white; line-height:1.2;
+}
+
+/* Type-specific styling */
+.card.distance .card-band { background: var(--lime); }
+.card.distance .card-footer { background: var(--lime); color: var(--ink); }
+.card.distance.d25 .card-band-num, .card.distance.d25 .card-footer { color: var(--cobalt); }
+.card.distance.d50 .card-band-num { color: var(--red); }
+.card.distance.d50 .card-footer { color: var(--red); }
+.card.distance.d75 .card-band-num { color: var(--ink); }
+.card.distance.d75 .card-footer { color: var(--ink); }
+.card.distance.d100 .card-band-num { color: var(--cobalt); }
+.card.distance.d100 .card-footer { color: var(--cobalt); }
+.card.distance.d200 .card-band-num { color: var(--red); }
+.card.distance.d200 .card-footer { color: var(--red); }
+
+.card.hazard .card-band, .card.speed_limit .card-band { background: #fff0f0; }
+.card.hazard .card-footer, .card.speed_limit .card-footer { background: #fff0f0; color: var(--red-dark); }
+.card.hazard .card-band-num, .card.speed_limit .card-band-num { color: var(--red); font-size:0.55rem; }
+
+.card.remedy .card-band, .card.end_limit .card-band { background: #f0fff5; }
+.card.remedy .card-footer, .card.end_limit .card-footer { background: #f0fff5; color: var(--green); }
+.card.remedy .card-band-num, .card.end_limit .card-band-num { font-size: 0.5rem; color: var(--green); letter-spacing:0.05em; }
+
+.card.safety .card-band { background: #e8f0ff; }
+.card.safety .card-footer { background: #e8f0ff; color: var(--cobalt-dark); }
+.card.safety .card-band-num { font-size: 0.5rem; color: var(--cobalt); letter-spacing:0.05em; }
+
+/* Empty slot */
+.card.empty-slot {
+  background: transparent;
+  border: 2px dashed rgba(255,255,255,0.15);
+  box-shadow: none;
+}
+.card.empty-slot .card-art { opacity: 0.3; }
+
+/* Facedown */
+.card.facedown {
+  background: repeating-linear-gradient(135deg, var(--cobalt-dark) 0, var(--cobalt-dark) 5px, var(--cobalt) 5px, var(--cobalt) 10px);
+  border-color: var(--cobalt-dark);
+  box-shadow: 1px 2px 4px rgba(0,0,0,0.5);
+}
+.card.facedown::after { content:''; position:absolute; inset:5px; border:1.5px solid rgba(255,255,255,0.15); border-radius:4px; }
+
+.hand-card { cursor: pointer; }
+.hand-card:hover { transform: translateY(-10px) rotate(-1.5deg); box-shadow: 3px 10px 20px rgba(0,0,0,0.5); z-index:10; }
+.hand-card.selected { transform: translateY(-14px) rotate(0deg); box-shadow: 0 0 0 3px var(--lime), 0 12px 28px rgba(0,0,0,0.5); z-index:11; border-color: var(--lime) !important; }
+.hand-card:active { cursor: grabbing; }
+.hand-card.drag-ghost { opacity: 0.4; }
+.hand-card.just-drawn::after {
+  content:'';
+  position:absolute; top:0; right:0;
+  width:0; height:0;
+  border-style:solid;
+  border-width:0 16px 16px 0;
+  border-color:transparent var(--gold) transparent transparent;
+  border-radius:0 5px 0 0;
+  z-index:12;
+}
+.hand-card.cf-available {
+  box-shadow: 0 0 0 2px var(--red), 0 0 14px 4px rgba(212,43,43,0.5), 1px 2px 6px rgba(0,0,0,0.4);
+  border-color: var(--red) !important;
+  animation: cfglow 1s ease-in-out infinite alternate;
+}
+@keyframes cfglow {
+  from { box-shadow: 0 0 0 2px var(--red), 0 0 8px 2px rgba(212,43,43,0.4); }
+  to   { box-shadow: 0 0 0 2px var(--red), 0 0 20px 8px rgba(212,43,43,0.7); }
+}
+
+/* Valid drop highlights */
+.drop-valid {
+  outline: 3px dashed var(--lime) !important;
+  outline-offset: 3px;
+  background: rgba(140,198,63,0.12) !important;
+  animation: dropglow 0.8s ease-in-out infinite alternate;
+}
+@keyframes dropglow { from{outline-color:var(--lime)} to{outline-color:#c8ff60} }
+.drop-valid-play {
+  outline: 3px dashed var(--red) !important;
+  outline-offset: 3px;
+  background: rgba(212,43,43,0.1) !important;
+  animation: dropglow-red 0.8s ease-in-out infinite alternate;
+}
+@keyframes dropglow-red { from{outline-color:var(--red)} to{outline-color:#ff6060} }
+.drop-valid-discard {
+  outline: 3px dashed var(--gold) !important;
+  outline-offset: 3px;
+  background: rgba(232,160,32,0.1) !important;
+  animation: dropglow-gold 0.8s ease-in-out infinite alternate;
+}
+@keyframes dropglow-gold { from{outline-color:var(--gold)} to{outline-color:#ffd060} }
+.drop-hover { background: rgba(140,198,63,0.2) !important; }
+
+.draw-pile-btn.your-turn-pulse {
+  animation: drawpulse 1.2s ease-in-out infinite alternate;
+  border-color: var(--lime) !important;
+}
+@keyframes drawpulse {
+  from { box-shadow: 0 0 6px 2px rgba(140,198,63,0.4); }
+  to   { box-shadow: 0 0 18px 6px rgba(140,198,63,0.8); }
+}
+
+/* AI action popup */
+#ai-popup {
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  pointer-events: none; z-index: 300;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+}
+.ai-pop-msg {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.4rem; letter-spacing: 0.1em;
+  padding: 8px 20px; border-radius: 6px;
+  border: 2px solid;
+  animation: popUp 0.15s ease-out, popFade 0.5s ease-in 1.2s forwards;
+  white-space: nowrap;
+}
+@keyframes popUp   { from{opacity:0;transform:scale(0.6) translateY(20px)} to{opacity:1;transform:scale(1) translateY(0)} }
+@keyframes popFade { from{opacity:1} to{opacity:0} }
+.ai-pop-msg.hazard  { background:rgba(212,43,43,0.92);  border-color:#ff6060; color:white; }
+.ai-pop-msg.remedy  { background:rgba(42,138,64,0.92);  border-color:#60ff90; color:white; }
+.ai-pop-msg.distance{ background:rgba(26,95,168,0.92);  border-color:#80c0ff; color:white; }
+.ai-pop-msg.safety  { background:rgba(26,95,168,0.92);  border-color:var(--gold); color:var(--gold); }
+.ai-pop-msg.discard { background:rgba(0,0,0,0.75);       border-color:#888;     color:#ccc; }
+
+/* Card tracker modal */
+.tracker-btn {
+  font-family:'Nunito',sans-serif; font-size:0.6rem; font-weight:800;
+  letter-spacing:0.1em; text-transform:uppercase;
+  padding:4px 10px; border-radius:3px;
+  background:rgba(255,255,255,0.1); color:rgba(255,255,255,0.6);
+  border:1px solid rgba(255,255,255,0.2); cursor:pointer;
+  transition:all 0.12s;
+}
+.tracker-btn:hover { background:rgba(255,255,255,0.2); color:white; }
+.tracker-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 6px; margin-top: 12px;
+}
+.tracker-card {
+  background: rgba(0,0,0,0.06); border-radius:4px;
+  padding: 6px 8px; font-size: 0.72rem;
+  display:flex; justify-content:space-between; align-items:center;
+  border-left: 3px solid;
+}
+.tracker-card .tc-name { font-weight:700; }
+.tracker-card .tc-counts { font-size:0.65rem; color:var(--gray); text-align:right; line-height:1.4; }
+.tracker-section-title { font-size:0.6rem; font-weight:800; letter-spacing:0.15em; text-transform:uppercase; color:var(--gray); margin-top:12px; margin-bottom:4px; }
+
+/* ── MIDDLE STRIP ── */
+.middle { display:flex; gap:14px; align-items:center; justify-content:space-between; padding:4px 16px; }
+.pile-zone { display:flex; flex-direction:column; align-items:center; gap:3px; }
+.plbl { font-size:0.52rem; letter-spacing:0.2em; text-transform:uppercase; color:rgba(255,255,255,0.5); font-weight:700; }
+.pcnt { font-size:0.6rem; color:rgba(255,255,255,0.4); }
+
+/* Draw pile */
+.draw-pile-btn {
+  width:80px; height:110px; border-radius:6px;
+  cursor: pointer;
+  background: repeating-linear-gradient(135deg, var(--cobalt-dark) 0, var(--cobalt-dark) 5px, var(--cobalt) 5px, var(--cobalt) 10px);
+  border: 2px solid var(--cobalt-dark);
+  box-shadow: 1px 2px 8px rgba(0,0,0,0.5);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
+  transition: transform 0.1s, box-shadow 0.1s;
+  position:relative;
+}
+.draw-pile-btn::after { content:''; position:absolute; inset:5px; border:1.5px solid rgba(255,255,255,0.15); border-radius:4px; }
+.draw-pile-btn:hover { transform: scale(1.04); box-shadow: 2px 4px 16px rgba(0,0,0,0.6); }
+.draw-pile-btn.drop-valid { outline: 3px dashed var(--lime); }
+.draw-label { font-family:'Bebas Neue',sans-serif; font-size:0.9rem; letter-spacing:0.1em; color:rgba(255,255,255,0.6); z-index:1; }
+
+/* Discard fan */
+.discard-fan {
+  width:100px; height:110px;
+  position:relative;
+  cursor:default;
+}
+.discard-fan .fan-card {
+  position:absolute; bottom:0; left:50%;
+  width:75px; height:105px; border-radius:5px;
+  border:1.5px solid rgba(0,0,0,0.3);
+  background:var(--card-bg);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  overflow:hidden;
+  box-shadow: 1px 2px 5px rgba(0,0,0,0.35);
+}
+.discard-fan .fan-card:nth-child(1) { transform: translateX(-50%) rotate(-8deg) translateY(4px); z-index:1; opacity:0.7; }
+.discard-fan .fan-card:nth-child(2) { transform: translateX(-50%) rotate(-3deg) translateY(2px); z-index:2; opacity:0.85; }
+.discard-fan .fan-card:nth-child(3) { transform: translateX(-50%) rotate(1deg); z-index:3; }
+.discard-fan .fan-label { font-size:0.55rem; font-weight:800; letter-spacing:0.05em; text-transform:uppercase; margin-top:4px; }
+.discard-empty { width:80px; height:110px; border-radius:6px; border:2px dashed rgba(255,255,255,0.2); display:flex; align-items:center; justify-content:center; font-size:0.55rem; color:rgba(255,255,255,0.3); letter-spacing:0.1em; text-transform:uppercase; }
+
+/* Drop zone overlays */
+.drop-zone-overlay {
+  position:absolute; inset:0; border-radius:6px;
+  border:3px dashed transparent;
+  pointer-events:none; transition:all 0.15s;
+  z-index:50;
+}
+
+/* ── HAND ── */
+.hand-row { display:flex; gap:5px; flex-wrap:wrap; min-height:96px; }
+
+/* ── ACTIONS ── */
+.actions { display:flex; gap:7px; margin-top:9px; flex-wrap:wrap; align-items:center; }
+.btn {
+  font-family:'Nunito',sans-serif; font-size:0.68rem; font-weight:800;
+  letter-spacing:0.08em; text-transform:uppercase;
+  padding:7px 15px; border-radius:4px; border:none; cursor:pointer;
+  transition:all 0.12s;
+}
+.btn-play { background:var(--lime); color:var(--ink); }
+.btn-play:hover:not(:disabled) { background:#a0d84a; transform:translateY(-1px); }
+.btn-discard { background:rgba(255,255,255,0.12); color:rgba(255,255,255,0.8); border:1px solid rgba(255,255,255,0.2); }
+.btn-discard:hover:not(:disabled) { background:rgba(255,255,255,0.2); }
+.btn-extend { background:var(--gold); color:var(--ink); }
+.btn-extend:hover:not(:disabled) { background:#f0b030; transform:translateY(-1px); }
+.btn-end-round { background:rgba(255,255,255,0.15); color:white; border:1px solid rgba(255,255,255,0.3); }
+.btn-end-round:hover { background:rgba(255,255,255,0.25); }
+
+/* Extension decision card */
+.ext-card {
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:10px; padding:14px 16px;
+  background:rgba(232,160,32,0.12); border:2px solid var(--gold);
+  border-radius:8px; min-width:160px;
+  box-shadow:0 0 16px rgba(232,160,32,0.2);
+  animation: ext-pulse 1.5s ease-in-out infinite;
+}
+@keyframes ext-pulse { 0%,100%{box-shadow:0 0 16px rgba(232,160,32,0.2)} 50%{box-shadow:0 0 28px rgba(232,160,32,0.45)} }
+.ext-card-title { font-family:'Bebas Neue',sans-serif; font-size:1.3rem; letter-spacing:0.1em; color:var(--gold); line-height:1; }
+.ext-card-sub { font-size:0.58rem; color:rgba(255,255,255,0.6); letter-spacing:0.08em; text-transform:uppercase; text-align:center; }
+.ext-card-btns { display:flex; gap:8px; }
+.btn-sort { background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.5); border:1px solid rgba(255,255,255,0.15); font-size:0.58rem; padding:5px 10px; }
+.btn-sort:hover { background:rgba(255,255,255,0.15); color:rgba(255,255,255,0.8); }
+.btn-sort.active { background:rgba(255,255,255,0.18); color:white; border-color:rgba(255,255,255,0.35); }
+
+/* ── STATUS ── */
+.status {
+  background: rgba(0,0,0,0.45);
+  border: 1.5px solid rgba(255,255,255,0.1);
+  border-radius:5px; padding:8px 14px;
+  font-size:0.75rem; color:rgba(255,255,255,0.85);
+  text-align:center; min-height:38px;
+  display:flex; align-items:center; justify-content:center; gap:6px;
+}
+.status.good { border-color:var(--lime); color:var(--lime); background:rgba(140,198,63,0.1); }
+.status.bad  { border-color:var(--red);  color:#ff9090; background:rgba(212,43,43,0.1); }
+.status.warn { border-color:var(--gold); color:var(--gold); background:rgba(232,160,32,0.1); }
+.status.info { border-color:var(--cobalt); color:#88b8f0; background:rgba(26,95,168,0.1); }
+
+/* ── COUP-FOURRÉ OVERLAY ── */
+#cf-overlay {
+  display:none; position:fixed; inset:0; z-index:1000;
+  background:rgba(0,0,0,0.7);
+  align-items:center; justify-content:center;
+  flex-direction:column; gap:16px;
+}
+#cf-overlay.show { display:flex; animation:cfIn 0.3s ease-out; }
+@keyframes cfIn { from{opacity:0;transform:scale(0.85)} to{opacity:1;transform:scale(1)} }
+.cf-card {
+  background: var(--red);
+  border: 4px solid var(--gold);
+  border-radius: 12px;
+  padding: 32px 48px;
+  text-align:center;
+  box-shadow: 0 0 80px rgba(212,43,43,0.8);
+}
+.cf-title {
+  font-family:'Bebas Neue',sans-serif;
+  font-size: 3.5rem; letter-spacing:0.2em;
+  color: var(--gold);
+  text-shadow: 3px 3px 0 rgba(0,0,0,0.4);
+  line-height:1;
+}
+.cf-lightning { font-size: 3rem; }
+.cf-subtitle { font-size:0.8rem; font-weight:700; letter-spacing:0.2em; text-transform:uppercase; color:rgba(255,255,255,0.85); margin-top:8px; }
+
+/* ── PROFILE MODAL ── */
+.profile-modal-overlay {
+  display:none; position:fixed; inset:0; z-index:800;
+  background:rgba(0,0,0,0.82);
+  align-items:center; justify-content:center;
+}
+.profile-modal-overlay.show { display:flex; }
+.profile-modal {
+  background: #1a2f1a;
+  border:2px solid rgba(140,198,63,0.3);
+  border-radius:12px; padding:28px 24px;
+  max-width:520px; width:94%;
+  max-height:90vh; overflow-y:auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+}
+.profile-modal-title {
+  font-family:'Bebas Neue',sans-serif; font-size:1.3rem;
+  letter-spacing:0.15em; color:var(--lime); text-align:center;
+  margin-bottom:4px;
+}
+.profile-modal-sub {
+  font-size:0.58rem; letter-spacing:0.25em; color:rgba(255,255,255,0.35);
+  text-transform:uppercase; text-align:center; margin-bottom:18px;
+}
+.profile-grid { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; }
+.profile-card {
+  width:142px; background:rgba(0,0,0,0.4); border:2px solid rgba(255,255,255,0.1);
+  border-radius:8px; padding:12px 10px; cursor:pointer;
+  transition:all 0.15s; text-align:center;
+  display:flex; flex-direction:column; gap:5px;
+}
+.profile-card:hover { border-color:var(--lime); background:rgba(140,198,63,0.08); transform:translateY(-2px); }
+.profile-card.active-profile { border-color:var(--lime); background:rgba(140,198,63,0.1); }
+.profile-card.new-profile { border-style:dashed; border-color:rgba(255,255,255,0.18); }
+.profile-card.new-profile:hover { border-color:var(--lime); }
+.profile-name { font-family:'Bebas Neue',sans-serif; font-size:1rem; letter-spacing:0.08em; color:var(--white); }
+.profile-stat { font-size:0.55rem; color:rgba(255,255,255,0.45); letter-spacing:0.04em; }
+.profile-stat span { color:var(--lime); font-weight:800; }
+.profile-wl { font-size:0.68rem; font-weight:800; }
+.profile-wl .w { color:var(--lime); }
+.profile-wl .l { color:rgba(255,255,255,0.3); }
+.profile-delete { font-size:0.48rem; color:rgba(255,255,255,0.18); cursor:pointer; margin-top:2px; }
+.profile-delete:hover { color:var(--red); }
+.profile-new-icon { font-size:1.6rem; opacity:0.35; line-height:1; }
+
+/* Inline new-profile form inside profile modal */
+.profile-inline-form {
+  margin-top:14px; padding-top:14px;
+  border-top:1px solid rgba(255,255,255,0.1);
+  display:none;
+}
+.profile-inline-form.show { display:block; }
+.profile-inline-form label {
+  font-size:0.6rem; letter-spacing:0.15em; text-transform:uppercase;
+  color:rgba(255,255,255,0.5); display:block; margin-bottom:6px; text-align:center;
+}
+
+/* Profile badge in scorebar */
+.profile-badge {
+  display:flex; flex-direction:column; align-items:center; cursor:pointer;
+  padding:6px 10px; border-right:2px solid rgba(255,255,255,0.06);
+}
+.profile-badge .pb-name { font-size:0.65rem; font-weight:800; letter-spacing:0.05em; color:var(--lime); }
+.profile-badge .pb-label { font-size:0.48rem; letter-spacing:0.15em; text-transform:uppercase; color:rgba(255,255,255,0.4); }
+
+/* Profile input */
+.profile-input {
+  width:100%; font-family:'Nunito',sans-serif; font-size:0.95rem; font-weight:700;
+  padding:9px 12px; border-radius:6px; border:2px solid rgba(255,255,255,0.15);
+  background:rgba(0,0,0,0.3); color:var(--white); margin-bottom:10px;
+  text-align:center; outline:none;
+}
+.profile-input:focus { border-color:var(--lime); }
+.profile-input::placeholder { color:rgba(255,255,255,0.25); }
+/* ── DEBUG PANEL ── */
+#debug-panel {
+  display:none; position:fixed; bottom:0; left:0; right:0; height:260px; z-index:9999;
+  background:rgba(0,0,0,0.96); border-top:2px solid var(--lime);
+  flex-direction:column;
+}
+#debug-panel.show { display:flex; }
+.debug-toolbar {
+  display:flex; align-items:center; gap:10px; padding:5px 10px;
+  background:rgba(0,0,0,0.8); border-bottom:1px solid rgba(255,255,255,0.1); flex-shrink:0;
+}
+.debug-toolbar .dt-title { color:var(--lime); font-weight:700; font-size:0.65rem; letter-spacing:0.1em; font-family:'Nunito',sans-serif; }
+.debug-toolbar label { display:flex; align-items:center; gap:4px; color:rgba(255,255,255,0.55); font-size:0.6rem; cursor:pointer; font-family:'Nunito',sans-serif; }
+.debug-copy { font-size:0.58rem; padding:3px 8px; background:rgba(140,198,63,0.15); color:var(--lime); border:1px solid rgba(140,198,63,0.4); border-radius:3px; cursor:pointer; margin-left:auto; font-family:'Nunito',sans-serif; }
+.debug-copy:hover { background:rgba(140,198,63,0.35); }
+.debug-clear { font-size:0.58rem; padding:3px 8px; background:rgba(255,255,255,0.05); color:rgba(255,255,255,0.35); border:1px solid rgba(255,255,255,0.12); border-radius:3px; cursor:pointer; font-family:'Nunito',sans-serif; }
+.debug-close { font-size:0.7rem; color:rgba(255,255,255,0.3); cursor:pointer; padding:0 4px; font-family:'Nunito',sans-serif; }
+.debug-close:hover { color:var(--red); }
+#debug-log { flex:1; overflow-y:auto; padding:5px 10px; display:flex; flex-direction:column; gap:1px; }
+.dle { padding:1px 0; border-bottom:1px solid rgba(255,255,255,0.03); color:rgba(255,255,255,0.65); font-family:monospace; font-size:0.62rem; }
+.dle .dt { color:rgba(255,255,255,0.2); margin-right:6px; }
+.dle.dsave { color:rgba(100,200,100,0.45); }
+.dle.dwarn { color:var(--gold); }
+.dle.derr  { color:var(--red); }
+.dle.dev  { color:#80c8ff; }
+.dle.dcf  { color:var(--gold); font-weight:bold; }
+.debug-hint { position:fixed; bottom:4px; right:8px; font-size:0.45rem; color:rgba(255,255,255,0.12); pointer-events:none; font-family:'Nunito',sans-serif; z-index:9998; }
+
+/* ── SCORE MODAL ── */
+.modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:500; align-items:center; justify-content:center; }
+.modal-overlay.show { display:flex; }
+.modal {
+  background:var(--card-bg);
+  border:3px solid var(--ink); border-radius:8px;
+  padding:24px 28px; max-width:480px; width:92%;
+  max-height:85vh; overflow-y:auto;
+  box-shadow: 6px 6px 0 rgba(0,0,0,0.5);
+}
+.modal h2 { font-family:'Bebas Neue',sans-serif; font-size:1.6rem; letter-spacing:0.1em; color:var(--ink); text-align:center; margin-bottom:12px; }
+.score-tbl { width:100%; border-collapse:collapse; font-size:0.78rem; }
+.score-tbl th { font-size:0.55rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--gray); padding:4px 8px; text-align:left; border-bottom:2px solid var(--ink); }
+.score-tbl td { padding:5px 8px; border-bottom:1px solid rgba(0,0,0,0.1); }
+.score-tbl .tot td { border-top:2.5px solid var(--ink); border-bottom:none; font-weight:800; font-size:0.85rem; }
+.win-cell { color:var(--green); font-weight:800; }
+.lose-cell { color:var(--gray); }
+.modal-acts { display:flex; gap:8px; margin-top:18px; justify-content:center; }
+.mbtn { font-family:'Nunito',sans-serif; font-size:0.68rem; font-weight:800; letter-spacing:0.08em; text-transform:uppercase; padding:9px 20px; border-radius:4px; cursor:pointer; border:none; transition:all 0.12s; }
+.mbtn-p { background:var(--ink); color:var(--white); }
+.mbtn-p:hover { background:var(--red); }
+.mbtn-s { background:transparent; color:var(--ink); border:2px solid var(--ink); }
+.mbtn-s:hover { background:rgba(0,0,0,0.08); }
+.modal-x {
+  background:none; border:none; cursor:pointer;
+  font-size:1rem; color:var(--gray); line-height:1;
+  padding:4px 6px; border-radius:4px;
+  transition:color 0.12s,background 0.12s;
+}
+.modal-x:hover { color:var(--ink); background:rgba(0,0,0,0.08); }
+.modal-rule { width:50px; height:2px; background:var(--red); margin:8px auto 12px; }
+
+/* Distance pile — absolute, right side of player area */
+.dist-pile-abs {
+  position:absolute; top:10px; right:10px; bottom:10px; width:98px;
+  display:flex; flex-direction:column; gap:3px;
+}
+.dist-pile-label {
+  font-size:0.5rem; text-transform:uppercase; letter-spacing:0.15em;
+  color:rgba(255,255,255,0.4); font-weight:700; text-align:center; flex-shrink:0;
+}
+.dist-pile-inner {
+  flex:1; border:1.5px dashed rgba(255,255,255,0.15); border-radius:7px;
+  position:relative; overflow:hidden;
+}
+.dist-pile-empty {
+  display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
+  padding-top:12px; gap:6px; opacity:0.35;
+}
+.dist-pile-empty span { font-size:0.5rem; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:0.1em; }
+.dist-card-abs {
+  position:absolute; left:0; right:0;
+  border-radius:5px; overflow:hidden;
+}
+.dist-km-badge {
+  flex-shrink:0; text-align:center;
+  background:var(--ink); color:var(--lime);
+  font-family:'Bebas Neue',sans-serif; font-size:0.85rem; letter-spacing:0.08em;
+  padding:2px 7px; border-radius:4px; border:1px solid rgba(140,198,63,0.4);
+}
+  position:relative; width:110px; height: var(--card-h);
+  flex-shrink:0;
+}
+.dist-pile-wrap .dist-card {
+  position:absolute; bottom:0; left:0;
+  width: var(--card-w); height: var(--card-h);
+  border-radius:7px; border:2px solid rgba(0,0,0,0.3);
+  background: var(--card-bg);
+  overflow:hidden; box-shadow:1px 2px 5px rgba(0,0,0,0.4);
+}
+.dist-pile-wrap .dist-card:nth-child(1){ transform:rotate(-6deg) translate(-4px,2px); z-index:1; opacity:0.7; }
+.dist-pile-wrap .dist-card:nth-child(2){ transform:rotate(-2deg) translate(-1px,1px); z-index:2; opacity:0.85; }
+.dist-pile-wrap .dist-card:nth-child(3){ transform:rotate(1deg); z-index:3; }
+.dist-pile-wrap .dist-km-overlay {
+  position:absolute; bottom:6px; right:-8px; z-index:10;
+  background:var(--ink); color:var(--lime);
+  font-family:'Bebas Neue',sans-serif;
+  font-size:1.1rem; letter-spacing:0.08em;
+  padding:3px 8px; border-radius:4px;
+  box-shadow:2px 2px 6px rgba(0,0,0,0.5);
+  border:1px solid rgba(140,198,63,0.4);
+  white-space:nowrap;
+}
+.dist-empty-slot {
+  width: var(--card-w); height: var(--card-h);
+  border:2px dashed rgba(255,255,255,0.15); border-radius:7px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;
+}
+.dist-empty-slot span { font-size:0.5rem; color:rgba(255,255,255,0.3); text-transform:uppercase; letter-spacing:0.1em; }
+</style>
+</head>
+<body>
+
+<!-- PROFILE MODAL (overlay on game, not full-screen replacement) -->
+<div class="profile-modal-overlay" id="profile-modal-overlay">
+  <div class="profile-modal">
+    <div class="profile-modal-title" id="profile-modal-title">Select Profile</div>
+    <div class="profile-modal-sub" id="profile-modal-sub">Up to 5 profiles · Stats saved locally</div>
+    <div class="profile-grid" id="profile-grid"></div>
+    <!-- Inline new-profile form, shown when "New Profile" is clicked -->
+    <div class="profile-inline-form" id="profile-inline-form">
+      <label>New Profile Name</label>
+      <input class="profile-input" id="profile-name-input" type="text" maxlength="16" placeholder="Enter your name" />
+      <div style="display:flex;gap:8px;justify-content:center">
+        <button class="mbtn mbtn-p" style="background:var(--lime);color:var(--ink);border:none" onclick="createProfile()">Create</button>
+        <button class="mbtn" style="background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.2)" onclick="hideNewProfileForm()">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SWITCH PROFILE CONFIRM -->
+<div class="modal-overlay" id="switch-profile-modal" onclick="if(event.target===this)closeModal('switch-profile-modal')">
+  <div class="modal" style="max-width:340px;text-align:center">
+    <h2>Switch Profile?</h2>
+    <p style="font-size:0.78rem;color:var(--gray);margin:10px 0 18px">Your current game will end. Progress will be lost.</p>
+    <div style="display:flex;gap:10px;justify-content:center">
+      <button class="mbtn mbtn-p" onclick="confirmSwitchProfile()">Switch Profile</button>
+      <button class="mbtn mbtn-s" onclick="closeModal('switch-profile-modal')">Keep Playing</button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE PROFILE CONFIRM -->
+<div class="modal-overlay" id="delete-profile-modal" onclick="if(event.target===this)closeModal('delete-profile-modal')">
+  <div class="modal" style="max-width:340px;text-align:center">
+    <h2>Remove Profile?</h2>
+    <p style="font-size:0.78rem;color:var(--gray);margin:10px 0 4px">This cannot be undone.</p>
+    <p style="font-size:0.85rem;font-weight:800;color:var(--ink);margin-bottom:18px" id="delete-profile-name"></p>
+    <div style="display:flex;gap:10px;justify-content:center">
+      <button class="mbtn mbtn-p" style="background:var(--red)" onclick="confirmDeleteProfile()">Remove</button>
+      <button class="mbtn mbtn-s" onclick="closeModal('delete-profile-modal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- DEBUG PANEL (Shift+D to toggle) -->
+<div id="debug-panel">
+  <div class="debug-toolbar">
+    <span class="dt-title">🔧 Debug Log</span>
+    <label><input type="checkbox" id="dbg-show-ai-hand" onchange="dbgRender()"> Show AI hand</label>
+    <label><input type="checkbox" id="dbg-auto-scroll" checked> Auto-scroll</label>
+    <button class="debug-copy" onclick="dbgCopy()">Copy Log</button>
+    <button class="debug-clear" onclick="dbgClear()">Clear</button>
+    <span class="debug-close" onclick="toggleDebug()">✕</span>
+  </div>
+  <div id="debug-log"></div>
+</div>
+<div class="debug-hint" id="debug-hint">Shift+D — debug</div>
+
+<!-- CF OVERLAY -->
+<div id="cf-overlay">
+  <div class="cf-card">
+    <div class="cf-lightning">⚡</div>
+    <div class="cf-title">Coup-Fourré!</div>
+    <div class="cf-subtitle" id="cf-subtitle">Counter played — turn stolen!</div>
+  </div>
+</div>
+
+<!-- CONFIRM NEW GAME -->
+<div class="modal-overlay" id="confirm-modal" onclick="if(event.target===this)closeModal('confirm-modal')">
+  <div class="modal" style="max-width:340px;text-align:center">
+    <h2>Start New Game?</h2>
+    <p style="font-size:0.78rem;color:var(--gray);margin:10px 0 18px">Your current scores and progress will be lost.</p>
+    <div style="display:flex;gap:10px;justify-content:center">
+      <button class="mbtn mbtn-p" onclick="confirmNewGame()">Yes, New Game</button>
+      <button class="mbtn mbtn-s" onclick="closeModal('confirm-modal')">Keep Playing</button>
+    </div>
+  </div>
+</div>
+
+<!-- AI ACTION POPUP -->
+<div id="ai-popup"></div>
+
+
+
+<!-- LIVE SCORE MODAL -->
+<div class="modal-overlay" id="live-score-modal" onclick="if(event.target===this)closeModal('live-score-modal')">
+  <div class="modal" style="max-width:460px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+      <h2 style="margin:0">Score History</h2>
+      <button class="modal-x" onclick="closeModal('live-score-modal')">✕</button>
+    </div>
+    <div id="live-score-content"></div>
+  </div>
+</div>
+
+<!-- END OF ROUND MODAL -->
+<div class="modal-overlay" id="round-modal">
+  <div class="modal">
+    <h2 id="round-modal-title" style="margin:0 0 4px">Round Over</h2>
+    <table class="score-tbl" id="round-score-tbl"></table>
+    <div class="modal-acts" style="margin-top:16px">
+      <button class="mbtn mbtn-p" onclick="nextRound()">Next Round →</button>
+    </div>
+  </div>
+</div>
+
+<!-- END OF GAME MODAL -->
+<div class="modal-overlay" id="game-modal">
+  <div class="modal" style="max-width:520px;max-height:88vh;overflow-y:auto">
+    <h2 id="game-modal-title" style="text-align:center">Game Over</h2>
+    <div class="modal-rule"></div>
+    <div id="game-recap"></div>
+    <div class="modal-acts" style="margin-top:16px">
+      <button class="mbtn mbtn-p" onclick="newGame()">New Game</button>
+    </div>
+  </div>
+</div>
+
+<div class="header" style="position:relative;">
+  <div style="display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap">
+    <div class="header-logo">MILLE <span>BORNES</span></div>
+    <button class="mbtn mbtn-s" style="font-size:0.58rem;padding:6px 14px;border-color:rgba(255,255,255,0.3);color:rgba(255,255,255,0.6)" onclick="askNewGame()">New Game</button>
+  </div>
+  <div class="header-sub">Road Race · 1 vs AI · First to 5000 points</div>
+</div>
+
+<div class="game" id="game">
+
+  <!-- AI -->
+  <div class="parea" id="ai-area">
+    <div class="hand-row" id="ai-hand"></div>
+    <div class="battle-row" id="ai-battle"
+         ondragover="event.preventDefault()"
+         ondrop="dropPlayOnAI(event)"></div>
+    <div class="phead" id="ai-phead">
+      <span class="pname">🤖 AI</span>
+      <div class="km-badge" id="ai-km">0 / 700 km</div>
+      <span class="spd-warn" id="ai-spd">⚠ 50 km limit</span>
+      <span class="tbadge wait" id="ai-badge">Waiting</span>
+    </div>
+  </div>
+
+  <!-- MIDDLE — MB-29 redesign -->
+  <div class="middle">
+    <!-- LEFT: Tracker widget -->
+    <div class="tracker-widget" id="tracker-widget">
+      <div class="tracker-compact" id="tracker-compact"
+           onmouseenter="trackerShow()" onmouseleave="trackerHide()">
+        <div class="tc-header">
+          <span class="tc-lbl">Remaining Cards</span>
+        </div>
+        <div class="tc-cols">
+          <div>
+            <div class="tc-col-lbl"><span class="tc-name">Acc</span><span>haz</span><span class="tc-sep">/</span><span>rem</span></div>
+            <div class="tc-pair" id="tcp-acc"><span class="tc-name">Acc</span><span class="tc-hnum" id="tcn-accident">3</span><span class="tc-sep">/</span><span class="tc-rnum" id="tcn-repairs">6</span></div>
+            <div class="tc-pair" id="tcp-gas"><span class="tc-name">Gas</span><span class="tc-hnum" id="tcn-out_of_gas">3</span><span class="tc-sep">/</span><span class="tc-rnum" id="tcn-gasoline">6</span></div>
+            <div class="tc-pair" id="tcp-flat"><span class="tc-name">Flat</span><span class="tc-hnum" id="tcn-flat_tire">3</span><span class="tc-sep">/</span><span class="tc-rnum" id="tcn-spare_tire">6</span></div>
+          </div>
+          <div>
+            <div class="tc-col-lbl"><span class="tc-name">Stop</span><span>haz</span><span class="tc-sep">/</span><span>rem</span></div>
+            <div class="tc-pair" id="tcp-stop"><span class="tc-name">Stop</span><span class="tc-hnum" id="tcn-stop">5</span><span class="tc-sep">/</span><span class="tc-rnum" id="tcn-roll">14</span></div>
+            <div class="tc-pair" id="tcp-speed"><span class="tc-name">Spd</span><span class="tc-hnum" id="tcn-speed_limit">4</span><span class="tc-sep">/</span><span class="tc-rnum" id="tcn-end_limit">6</span></div>
+          </div>
+        </div>
+      </div>
+      <!-- Expanded panel -->
+      <div class="tracker-expanded" id="tracker-expanded"
+           onmouseenter="trackerShow()" onmouseleave="trackerHide()" onclick="trackerTogglePin()">
+        <div class="te-legend">
+          <span id="tc-pin-hint" style="color:rgba(255,255,255,0.35);font-size:0.46rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;margin-right:auto;">click to pin</span>
+          <div class="te-legend-item"><div style="width:8px;height:3px;border-radius:1px;background:#d42b2b"></div><span>hazard</span></div>
+          <div class="te-legend-item"><div style="width:8px;height:3px;border-radius:1px;background:#2a8a40"></div><span>remedy</span></div>
+          <div class="te-legend-item"><div style="width:6px;height:6px;border-radius:50%;background:#ff4444"></div><span>danger</span></div>
+        </div>
+        <div class="te-section">Hazard / Remedy</div>
+        <div class="te-row" id="ter-stop"><span class="te-name">Stop / Roll</span><div class="te-track"><div class="te-rem" id="teb-rem-stop"></div><div class="te-haz" id="teb-haz-stop"></div></div><div class="te-counts"><span id="tec-haz-stop" style="color:#ff8080"></span><span id="tec-rem-stop" style="color:#60d080"></span></div><div class="te-nopip" id="tep-stop"></div></div>
+        <div class="te-row" id="ter-accident"><span class="te-name">Acc / Repairs</span><div class="te-track"><div class="te-rem" id="teb-rem-accident"></div><div class="te-haz" id="teb-haz-accident"></div></div><div class="te-counts"><span id="tec-haz-accident" style="color:#ff8080"></span><span id="tec-rem-accident" style="color:#60d080"></span></div><div class="te-nopip" id="tep-accident"></div></div>
+        <div class="te-row" id="ter-out_of_gas"><span class="te-name">Gas / Gasoline</span><div class="te-track"><div class="te-rem" id="teb-rem-out_of_gas"></div><div class="te-haz" id="teb-haz-out_of_gas"></div></div><div class="te-counts"><span id="tec-haz-out_of_gas" style="color:#ff8080"></span><span id="tec-rem-out_of_gas" style="color:#60d080"></span></div><div class="te-nopip" id="tep-out_of_gas"></div></div>
+        <div class="te-row" id="ter-flat_tire"><span class="te-name">Flat / Spare</span><div class="te-track"><div class="te-rem" id="teb-rem-flat_tire"></div><div class="te-haz" id="teb-haz-flat_tire"></div></div><div class="te-counts"><span id="tec-haz-flat_tire" style="color:#ff8080"></span><span id="tec-rem-flat_tire" style="color:#60d080"></span></div><div class="te-nopip" id="tep-flat_tire"></div></div>
+        <div class="te-row" id="ter-speed_limit"><span class="te-name">Speed / End Lim</span><div class="te-track"><div class="te-rem" id="teb-rem-speed_limit"></div><div class="te-haz" id="teb-haz-speed_limit" style="background:#e8a020"></div></div><div class="te-counts"><span id="tec-haz-speed_limit" style="color:#e8a020"></span><span id="tec-rem-speed_limit" style="color:#60d080"></span></div><div class="te-nopip" id="tep-speed_limit"></div></div>
+        <div class="te-section">Distance</div>
+        <div class="td-row"><span class="td-name">25 km</span><div class="td-track"><div class="td-fill" id="tdf-d25"></div></div><span class="td-num" id="tdn-d25"></span></div>
+        <div class="td-row"><span class="td-name">50 km</span><div class="td-track"><div class="td-fill" id="tdf-d50"></div></div><span class="td-num" id="tdn-d50"></span></div>
+        <div class="td-row"><span class="td-name">75 km</span><div class="td-track"><div class="td-fill" id="tdf-d75"></div></div><span class="td-num" id="tdn-d75"></span></div>
+        <div class="td-row"><span class="td-name">100 km</span><div class="td-track"><div class="td-fill" id="tdf-d100"></div></div><span class="td-num" id="tdn-d100"></span></div>
+        <div class="td-row"><span class="td-name">200 km</span><div class="td-track"><div class="td-fill" id="tdf-d200"></div></div><span class="td-num" id="tdn-d200"></span></div>
+        <div class="te-section">Safeties</div>
+        <div class="te-saf-grid">
+          <div class="te-saf-chip unknown" id="tsc-right_of_way" data-safety-id="right_of_way"><span class="te-sc-name">Right of Way</span><span class="te-sc-status" id="tss-right_of_way">in deck</span></div>
+          <div class="te-saf-chip unknown" id="tsc-driving_ace" data-safety-id="driving_ace"><span class="te-sc-name">Driving Ace</span><span class="te-sc-status" id="tss-driving_ace">in deck</span></div>
+          <div class="te-saf-chip unknown" id="tsc-fuel_tank" data-safety-id="fuel_tank"><span class="te-sc-name">Extra Tank</span><span class="te-sc-status" id="tss-fuel_tank">in deck</span></div>
+          <div class="te-saf-chip unknown" id="tsc-puncture_proof" data-safety-id="puncture_proof"><span class="te-sc-name">Puncture-Proof</span><span class="te-sc-status" id="tss-puncture_proof">in deck</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CENTER: Draw pile + Discard pile -->
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div class="pile-zone">
+        <div class="plbl">Draw Pile</div>
+        <div class="draw-pile-btn" id="draw-btn" onclick="humanDraw()">
+          <span class="draw-label">DRAW</span>
+        </div>
+      </div>
+      <div class="pile-zone">
+        <div class="plbl">Discard</div>
+        <div id="discard-area"
+             ondragenter="highlightDiscard(true); event.preventDefault()"
+             ondragover="event.preventDefault()"
+             ondrop="dropDiscard(event)">
+          <div class="discard-empty" id="discard-empty">Empty</div>
+          <div class="discard-fan" id="discard-fan" style="display:none"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Round + Scores + Profile -->
+    <div style="display:flex;align-items:center;gap:6px;">
+      <div class="mid-tile round-tile" onclick="showLiveScore()">
+        <span class="rt-lbl">Round</span>
+        <span class="rt-num" id="sc-round">1</span>
+        <span class="rt-hint">Score<br>History</span>
+      </div>
+      <div class="score-tiles">
+        <div class="mid-tile score-tile" id="score-tile-ai">
+          <span class="st-lbl">🤖 AI</span>
+          <span class="st-val" id="sc-ai">0</span>
+        </div>
+        <div class="mid-tile score-tile" id="score-tile-human">
+          <span class="st-lbl">🧑 You</span>
+          <span class="st-val" id="sc-human">0</span>
+        </div>
+      </div>
+      <div class="mid-tile mid-strip-btn" onclick="askSwitchProfile()">
+        <span class="msb-icon">👤</span>
+        <span class="msb-title" id="sc-profile">—</span>
+        <span class="msb-wl" id="sc-profile-wl"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- YOU -->
+  <div class="parea you" id="human-area">
+    <div class="phead">
+      <span class="pname">🧑 You</span>
+      <div class="km-badge" id="human-km">0 / 700 km</div>
+      <span class="spd-warn" id="human-spd">⚠ 50 km limit</span>
+      <span class="tbadge yours" id="human-badge">Your Turn</span>
+    </div>
+    <div class="battle-row" id="human-battle"
+         ondragover="event.preventDefault()"
+         ondrop="dropPlay(event)"></div>
+    <div class="hand-row" id="human-hand"></div>
+    <div class="actions">
+      <button class="btn btn-play" id="btn-play" onclick="playSelected()" disabled>▶ Play Card</button>
+      <button class="btn btn-discard" id="btn-discard" onclick="discardSelected()" disabled>✕ Discard</button>
+      <button class="btn btn-sort" id="btn-sort-type" onclick="setSort('type')" title="Sort by type">⇅ Type</button>
+      <button class="btn btn-sort" id="btn-sort-play" onclick="setSort('playable')" title="Playable cards first">⇅ Playable</button>
+      <button class="btn btn-sort" id="btn-sort-none" onclick="setSort('none')" title="Original deal order">⇅ Dealt</button>
+    </div>
+  </div>
+
+  <div class="status info" id="status">Click the draw pile to start your turn.</div>
+</div>
+
+<div style="text-align:center;padding:6px 0 2px;font-size:0.44rem;letter-spacing:0.15em;color:rgba(255,255,255,0.2);text-transform:uppercase;">v2.0.3</div>
+
+<script>
+// ══════════════════════════════════════════
+// SVG ART — flat illustration style
+// ══════════════════════════════════════════
+const ART = {
+  // HAZARDS
+  accident: `<svg viewBox="0 0 70 80" xmlns="http://www.w3.org/2000/svg">
+    <rect width="70" height="80" fill="#fff0f0"/>
+    <!-- Road -->
+    <rect x="10" y="50" width="50" height="20" fill="#555" rx="2"/>
+    <rect x="22" y="56" width="8" height="4" fill="#fff" opacity="0.5"/>
+    <rect x="40" y="56" width="8" height="4" fill="#fff" opacity="0.5"/>
+    <!-- Crashed car body -->
+    <ellipse cx="35" cy="42" rx="18" ry="9" fill="#d42b2b" transform="rotate(-25 35 42)"/>
+    <rect x="20" y="34" width="22" height="10" fill="#a01e1e" rx="2" transform="rotate(-25 31 39)"/>
+    <!-- Wheel flying off -->
+    <circle cx="56" cy="22" r="6" fill="#333" stroke="#666" stroke-width="2"/>
+    <circle cx="56" cy="22" r="3" fill="#888"/>
+    <!-- Impact lines -->
+    <line x1="35" y1="38" x2="28" y2="25" stroke="#d42b2b" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="38" y1="36" x2="50" y2="28" stroke="#d42b2b" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="32" y1="40" x2="20" y2="32" stroke="#d42b2b" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Bang star -->
+    <polygon points="35,10 38,18 46,16 41,23 46,30 38,27 35,35 32,27 24,30 29,23 24,16 32,18" fill="#2a8a40" opacity="0.9"/>
+    <text x="35" y="27" text-anchor="middle" font-size="9" font-weight="bold" fill="white" font-family="sans-serif">!</text>
+  </svg>`,
+
+  out_of_gas: `<svg viewBox="0 0 70 80" xmlns="http://www.w3.org/2000/svg">
+    <rect width="70" height="80" fill="#fff0f0"/>
+    <!-- Car outline simple -->
+    <rect x="8" y="44" width="46" height="18" rx="3" fill="#a01e1e"/>
+    <rect x="16" y="34" width="30" height="14" rx="3" fill="#d42b2b"/>
+    <!-- Windows -->
+    <rect x="19" y="37" width="11" height="8" rx="1" fill="#aee" opacity="0.8"/>
+    <rect x="33" y="37" width="11" height="8" rx="1" fill="#aee" opacity="0.8"/>
+    <!-- Wheels -->
+    <circle cx="18" cy="64" r="7" fill="#222"/><circle cx="18" cy="64" r="4" fill="#888"/>
+    <circle cx="46" cy="64" r="7" fill="#222"/><circle cx="46" cy="64" r="4" fill="#888"/>
+    <!-- Empty gauge -->
+    <rect x="58" y="20" width="8" height="28" rx="2" fill="#ddd" stroke="#999" stroke-width="1"/>
+    <rect x="59" y="38" width="6" height="9" rx="1" fill="#d42b2b"/>
+    <text x="62" y="17" text-anchor="middle" font-size="7" fill="#333" font-weight="bold">E</text>
+    <!-- Puff of smoke -->
+    <circle cx="55" cy="44" r="5" fill="#bbb" opacity="0.6"/>
+    <circle cx="60" cy="38" r="6" fill="#ccc" opacity="0.5"/>
+    <circle cx="50" cy="36" r="4" fill="#aaa" opacity="0.5"/>
+  </svg>`,
+
+  flat_tire: `<svg viewBox="0 0 70 80" xmlns="http://www.w3.org/2000/svg">
+    <rect width="70" height="80" fill="#fff0f0"/>
+    <!-- Flat tire squeezed -->
+    <ellipse cx="35" cy="58" rx="28" ry="8" fill="#222"/>
+    <ellipse cx="35" cy="54" rx="26" ry="14" fill="#444"/>
+    <ellipse cx="35" cy="53" rx="14" ry="9" fill="#777"/>
+    <ellipse cx="35" cy="52" rx="7" ry="5" fill="#333"/>
+    <!-- Nail -->
+    <rect x="32" y="32" width="4" height="22" fill="#999" rx="1"/>
+    <polygon points="30,32 40,32 35,24" fill="#bbb"/>
+    <!-- Jagged crack lines on tire -->
+    <path d="M15 54 Q20 48 25 54 Q30 60 35 54" stroke="#d42b2b" stroke-width="1.5" fill="none"/>
+    <!-- Exclamation -->
+    <circle cx="55" cy="20" r="10" fill="#d42b2b"/>
+    <text x="55" y="25" text-anchor="middle" font-size="12" fill="white" font-weight="bold" font-family="sans-serif">!</text>
+  </svg>`,
+
+  stop: `<svg viewBox="0 0 70 80" xmlns="http://www.w3.org/2000/svg">
+    <rect width="70" height="80" fill="#fff0f0"/>
+    <!-- Traffic light pole -->
+    <rect x="28" y="28" width="6" height="42" fill="#333" rx="1"/>
+    <rect x="25" y="58" width="12" height="3" fill="#222" rx="1"/>
+    <!-- Traffic light box -->
+    <rect x="20" y="12" width="22" height="38" rx="4" fill="#222"/>
+    <rect x="22" y="14" width="18" height="34" rx="3" fill="#111"/>
+    <!-- Red light ON -->
+    <circle cx="31" cy="22" r="7" fill="#d42b2b" filter="url(#glow)"/>
+    <!-- Yellow off -->
+    <circle cx="31" cy="34" r="6" fill="#554400" opacity="0.6"/>
+    <!-- Green off -->
+    <circle cx="31" cy="46" r="6" fill="#003300" opacity="0.6"/>
+    <!-- Big red dot for emphasis -->
+    <circle cx="54" cy="18" r="12" fill="#d42b2b" opacity="0.85"/>
+    <text x="54" y="23" text-anchor="middle" font-size="11" fill="white" font-weight="900" font-family="sans-serif">✕</text>
+    <defs><filter id="glow"><feGaussianBlur stdDeviation="2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+  </svg>`,
+
+  speed_limit: `<svg viewBox="0 0 70 80" xmlns="http://www.w3.org/2000/svg">
+    <rect width="70" height="80" fill="#fffbf0"/>
+    <!-- Two signs -->
+    <circle cx="26" cy="36" r="18" fill="white" stroke="#d42b2b" stroke-width="4"/>
+    <circle cx="26" cy="36" r="13" fill="white"/>
+    <text x="26" y="41" text-anchor="middle" font-size="13" font-weight="900" fill="#d42b2b" font-family="sans-serif">50</text>
+    <!-- Smaller background sign -->
+    <circle cx="48" cy="52" r="14" fill="white" stroke="#d42b2b" stroke-width="3" opacity="0.7"/>
+    <circle cx="48" cy="52" r="10" fill="white" opacity="0.7"/>
+    <text x="48" y="57" text-anchor="middle" font-size="10" font-weight="900" fill="#d42b2b" font-family="sans-serif" opacity="0.7">50</text>
+    <!-- Post -->
+    <rect x="24" y="52" width="4" height="24" fill="#999" rx="1"/>
+    <rect x="20" y="72" width="12" height="3" fill="#888" rx="1"/>
+  </svg>`,
+
+  // REMEDIES
+  repairs: `<svg viewBox="0 0 70 80" xmlns="http://www.w3.org/2000/svg">
+    <rect width="70" height="80" fill="#f0fff5"/>
+    <!-- Car being fixed -->
+    <rect x="8" y="40" width="44" height="16" rx="3" fill="#6a9e28" opacity="0.7"/>
+    <rect x="14" y="30" width="28" height="14" rx="3" fill="#2a8a40"/>
+    <!-- Hood open -->
+    <path d="M8 40 L20 25 L35 25 L35 40" fill="#8cc63f" stroke="#6a9e28" stroke-width="1.5"/>
+    <!-- Wrench -->
+    <path d="M42 12 L58 38" stroke="#888" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="42" cy="12" r="6" fill="#aaa" stroke="#888" stroke-width="2"/>
+    <circle cx="58" cy="38" r="5" fill="#aaa" stroke="#888" stroke-width="2"/>
+    <!-- Sparks -->
+    <line x1="48" y1="18" x2="52" y2="12" stroke="#2a8a40" stroke-width="2"/>
+    <line x1="50" y1="22" x2="56" y2="18" stroke="#8cc63f" stroke-width="2"/>
+    <!-- Wheels -->
+    <circle cx="18" cy="58" r="7" fill="#222"/><circle cx="18" cy="58" r="3" fill="#888"/>
+    <circle cx="42" cy="58" r="7" fill="#222"/><circle cx="42" cy="58" r="3" fill="#888"/>
+  </svg>`,
+
+  gasoline: `<svg viewBox="0 0 70 80" xmlns="http://www.w3.org/2000/svg">
+    <rect width="70" height="80" fill="#f0fff5"/>
+    <!-- Big gas can -->
+    <rect x="14" y="24" width="30" height="40" rx="4" fill="#2a8a40" stroke="#6a9e28" stroke-width="2"/>
+    <rect x="18" y="28" width="22" height="12" rx="2" fill="#8cc63f" opacity="0.7"/>
+    <!-- Nozzle -->
+    <rect x="44" y="28" width="6" height="16" rx="2" fill="#6a9e28"/>
+    <path d="M44 34 L55 34 L55 48 L50 48" stroke="#6a9e28" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <!-- Handle -->
+    <path d="M14 30 L8 30 L8 44 L14 44" stroke="#6a9e28" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <!-- Fuel drops -->
+    <ellipse cx="55" cy="54" rx="4" ry="5" fill="#8cc63f" opacity="0.8"/>
+    <ellipse cx="55" cy="63" rx="3" ry="4" fill="#8cc63f" opacity="0.5"/>
+    <!-- Cap -->
+    <rect x="22" y="18" width="14" height="8" rx="3" fill="#6a9e28"/>
+  </svg>`,
+
+  spare_tire: `<svg viewBox="0 0 70 80" xmlns="http://www.w3.org/2000/svg">
+    <rect width="70" height="80" fill="#f0fff5"/>
+    <!-- Rolling tire, upright perspective -->
+    <ellipse cx="35" cy="42" rx="26" ry="28" fill="#333"/>
+    <ellipse cx="35" cy="42" rx="22" ry="24" fill="#555"/>
+    <ellipse cx="35" cy="42" rx="12" ry="13" fill="#888"/>
+    <ellipse cx="35" cy="42" rx="5" ry="6" fill="#333"/>
+    <!-- Spokes -->
+    <line x1="35" y1="29" x2="35" y2="55" stroke="#aaa" stroke-width="2"/>
+    <line x1="22" y1="42" x2="48" y2="42" stroke="#aaa" stroke-width="2"/>
+    <line x1="25" y1="32" x2="45" y2="52" stroke="#aaa" stroke-width="2"/>
+    <line x1="45" y1="32" x2="25" y2="52" stroke="#aaa" stroke-width="2"/>
+    <!-- Green checkmark -->
+    <circle cx="54" cy="18" r="11" fill="#2a8a40"/>
+    <path d="M48 18 L53 23 L61 13" stroke="white" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`,
+
+  end_limit: `<svg viewBox="0 0 70 80" xmlns="http://www.w3.org/2000/svg">
+    <rect width="70" height="80" fill="#f0fff5"/>
+    <!-- Speed limit sign crossed out -->
+    <circle cx="35" cy="38" r="22" fill="white" stroke="#aaa" stroke-width="2"/>
+    <circle cx="35" cy="38" r="18" fill="white"/>
+    <!-- Blue diagonal bar (end of restriction) -->
+    <line x1="18" y1="22" x2="52" y2="58" stroke="#1a5fa8" stroke-width="7" stroke-linecap="round"/>
+    <text x="35" y="43" text-anchor="middle" font-size="13" font-weight="900" fill="#999" font-family="sans-serif">50</text>
+    <!-- Post -->
+    <rect x="33" y="58" width="4" height="18" fill="#999" rx="1"/>
+    <rect x="28" y="73" width="14" height="3" fill="#888" rx="1"/>
+  </svg>`,
+
+  roll: `<svg viewBox="0 0 70 80" xmlns="http://www.w3.org/2000/svg">
+    <rect width="70" height="80" fill="#f0fff5"/>
+    <!-- Traffic light -->
+    <rect x="22" y="8" width="20" height="48" rx="4" fill="#222"/>
+    <rect x="24" y="10" width="16" height="44" rx="3" fill="#111"/>
+    <!-- Red off -->
+    <circle cx="32" cy="20" r="6" fill="#440000" opacity="0.6"/>
+    <!-- Yellow off -->
+    <circle cx="32" cy="32" r="6" fill="#443300" opacity="0.6"/>
+    <!-- Green ON + glow -->
+    <circle cx="32" cy="44" r="7" fill="#8cc63f"/>
+    <circle cx="32" cy="44" r="5" fill="#2a8a40"/>
+    <!-- Big green dot emphasis -->
+    <circle cx="55" cy="20" r="12" fill="#2a8a40" opacity="0.9"/>
+    <text x="55" y="25" text-anchor="middle" font-size="13" fill="white" font-weight="900" font-family="sans-serif">▶</text>
+    <!-- Pole -->
+    <rect x="30" y="54" width="4" height="22" fill="#555" rx="1"/>
+    <rect x="26" y="72" width="12" height="3" fill="#444" rx="1"/>
+  </svg>`,
+
+  // SAFETIES
+  driving_ace: `<svg viewBox="0 0 70 80" xmlns="http://www.w3.org/2000/svg">
+    <rect width="70" height="80" fill="#eef3ff"/>
+    <!-- Steering wheel -->
+    <circle cx="38" cy="46" r="22" fill="none" stroke="#1a5fa8" stroke-width="5"/>
+    <circle cx="38" cy="46" r="8" fill="#1a5fa8"/>
+    <line x1="38" y1="26" x2="38" y2="38" stroke="#1a5fa8" stroke-width="4"/>
+    <line x1="19" y1="54" x2="30" y2="48" stroke="#1a5fa8" stroke-width="4"/>
+    <line x1="57" y1="54" x2="46" y2="48" stroke="#1a5fa8" stroke-width="4"/>
+    <!-- Driving gloves -->
+    <ellipse cx="18" cy="54" rx="7" ry="8" fill="#d42b2b" stroke="#a01e1e" stroke-width="1.5"/>
+    <line x1="15" y1="48" x2="14" y2="44" stroke="#a01e1e" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="18" y1="47" x2="17" y2="43" stroke="#a01e1e" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="21" y1="48" x2="21" y2="44" stroke="#a01e1e" stroke-width="1.5" stroke-linecap="round"/>
+    <!-- Star badge -->
+    <polygon points="38,8 41,16 50,16 43,21 46,30 38,25 30,30 33,21 26,16 35,16" fill="#2a8a40"/>
+    <text x="38" y="22" text-anchor="middle" font-size="7" fill="white" font-weight="bold">ACE</text>
+  </svg>`,
+
+  fuel_tank: `<svg viewBox="0 0 70 80" xmlns="http://www.w3.org/2000/svg">
+    <rect width="70" height="80" fill="#eef3ff"/>
+    <!-- Big truck tanker -->
+    <rect x="5" y="38" width="55" height="24" rx="4" fill="#1a5fa8"/>
+    <ellipse cx="60" cy="50" rx="8" ry="12" fill="#104080"/>
+    <rect x="5" y="30" width="20" height="16" rx="2" fill="#104080"/>
+    <!-- Cab window -->
+    <rect x="7" y="32" width="16" height="10" rx="1" fill="#aed" opacity="0.8"/>
+    <!-- Tank body dome -->
+    <ellipse cx="37" cy="38" rx="24" ry="8" fill="#104080"/>
+    <!-- Wheels -->
+    <circle cx="16" cy="65" r="8" fill="#222"/><circle cx="16" cy="65" r="4" fill="#777"/>
+    <circle cx="46" cy="65" r="8" fill="#222"/><circle cx="46" cy="65" r="4" fill="#777"/>
+    <!-- Shield badge -->
+    <path d="M52 8 L62 12 L62 22 L52 28 L42 22 L42 12 Z" fill="#1a5fa8" stroke="#104080" stroke-width="1.5"/>
+    <text x="52" y="22" text-anchor="middle" font-size="9" fill="white" font-weight="bold">∞</text>
+  </svg>`,
+
+  puncture_proof: `<svg viewBox="0 0 70 80" xmlns="http://www.w3.org/2000/svg">
+    <rect width="70" height="80" fill="#eef3ff"/>
+    <!-- Armored tire -->
+    <circle cx="35" cy="48" r="24" fill="#222"/>
+    <circle cx="35" cy="48" r="20" fill="#444"/>
+    <!-- Armor plates -->
+    <path d="M35 28 A20 20 0 0 1 55 48" fill="#1a5fa8" opacity="0.8"/>
+    <path d="M55 48 A20 20 0 0 1 35 68" fill="#104080" opacity="0.8"/>
+    <path d="M35 68 A20 20 0 0 1 15 48" fill="#1a5fa8" opacity="0.8"/>
+    <path d="M15 48 A20 20 0 0 1 35 28" fill="#104080" opacity="0.8"/>
+    <circle cx="35" cy="48" r="8" fill="#888"/>
+    <circle cx="35" cy="48" r="4" fill="#333"/>
+    <!-- Nail bouncing off -->
+    <rect x="52" y="20" width="3" height="14" fill="#aaa" rx="1" transform="rotate(30 52 20)"/>
+    <polygon points="52,18 58,18 55,12" fill="#ccc" transform="rotate(30 55 15)"/>
+    <!-- Bounce lines -->
+    <line x1="52" y1="32" x2="58" y2="24" stroke="#2a8a40" stroke-width="2" stroke-dasharray="3 2"/>
+    <line x1="55" y1="30" x2="62" y2="26" stroke="#8cc63f" stroke-width="1.5" stroke-dasharray="2 2"/>
+  </svg>`,
+
+  right_of_way: `<svg viewBox="0 0 70 80" xmlns="http://www.w3.org/2000/svg">
+    <rect width="70" height="80" fill="#eef3ff"/>
+    <!-- Racing fire truck / priority vehicle -->
+    <rect x="5" y="34" width="52" height="22" rx="3" fill="#d42b2b"/>
+    <rect x="5" y="26" width="28" height="14" rx="2" fill="#a01e1e"/>
+    <!-- Windows -->
+    <rect x="8" y="28" width="11" height="8" rx="1" fill="#aee" opacity="0.9"/>
+    <rect x="22" y="28" width="9" height="8" rx="1" fill="#aee" opacity="0.9"/>
+    <!-- Wheels -->
+    <circle cx="18" cy="59" r="8" fill="#222"/><circle cx="18" cy="59" r="4" fill="#888"/>
+    <circle cx="46" cy="59" r="8" fill="#222"/><circle cx="46" cy="59" r="4" fill="#888"/>
+    <!-- Siren light -->
+    <rect x="18" y="20" width="18" height="8" rx="2" fill="#222"/>
+    <circle cx="22" cy="24" r="3" fill="#d42b2b"/>
+    <circle cx="32" cy="24" r="3" fill="#1a5fa8"/>
+    <!-- Speed lines -->
+    <line x1="56" y1="38" x2="66" y2="38" stroke="#d42b2b" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="58" y1="44" x2="66" y2="44" stroke="#d42b2b" stroke-width="2" stroke-linecap="round"/>
+    <line x1="60" y1="50" x2="66" y2="50" stroke="#d42b2b" stroke-width="1.5" stroke-linecap="round"/>
+  </svg>`,
+
+  // DISTANCE
+  d25: `<svg viewBox="0 0 70 80" xmlns="http://www.w3.org/2000/svg">
+    <rect width="70" height="80" fill="#f5fff0"/>
+    <!-- Milepost cube -->
+    <rect x="12" y="20" width="46" height="36" rx="3" fill="white" stroke="#8cc63f" stroke-width="2"/>
+    <rect x="14" y="22" width="42" height="6" fill="#8cc63f"/>
+    <!-- Big number -->
+    <text x="35" y="52" text-anchor="middle" font-size="28" font-weight="900" fill="#1a5fa8" font-family="sans-serif">25</text>
+    <!-- Snail mascot (25 = slow) -->
+    <ellipse cx="55" cy="16" rx="8" ry="5" fill="#8cc63f"/>
+    <circle cx="50" cy="16" r="5" fill="#2a8a40"/>
+    <line x1="48" y1="12" x2="46" y2="8" stroke="#2a8a40" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="51" y1="11" x2="50" y2="7" stroke="#2a8a40" stroke-width="1.5" stroke-linecap="round"/>
+    <!-- Road below -->
+    <rect x="0" y="66" width="70" height="14" fill="#666"/>
+    <rect x="8" y="70" width="10" height="4" fill="white" opacity="0.6" rx="1"/>
+    <rect x="30" y="70" width="10" height="4" fill="white" opacity="0.6" rx="1"/>
+    <rect x="52" y="70" width="10" height="4" fill="white" opacity="0.6" rx="1"/>
+  </svg>`,
+
+  d50: `<svg viewBox="0 0 70 80" xmlns="http://www.w3.org/2000/svg">
+    <rect width="70" height="80" fill="#f5fff0"/>
+    <rect x="12" y="20" width="46" height="36" rx="3" fill="white" stroke="#8cc63f" stroke-width="2"/>
+    <rect x="14" y="22" width="42" height="6" fill="#8cc63f"/>
+    <text x="35" y="52" text-anchor="middle" font-size="28" font-weight="900" fill="#d42b2b" font-family="sans-serif">50</text>
+    <!-- Duck mascot (classic 50) -->
+    <ellipse cx="57" cy="17" rx="6" ry="4" fill="#2a8a40"/>
+    <circle cx="52" cy="15" r="4" fill="#8cc63f"/>
+    <path d="M48 15 L45 16 L48 17" fill="orange"/>
+    <circle cx="51" cy="13" r="1" fill="#222"/>
+    <rect x="0" y="66" width="70" height="14" fill="#666"/>
+    <rect x="8" y="70" width="10" height="4" fill="white" opacity="0.6" rx="1"/>
+    <rect x="30" y="70" width="10" height="4" fill="white" opacity="0.6" rx="1"/>
+    <rect x="52" y="70" width="10" height="4" fill="white" opacity="0.6" rx="1"/>
+  </svg>`,
+
+  d75: `<svg viewBox="0 0 70 80" xmlns="http://www.w3.org/2000/svg">
+    <rect width="70" height="80" fill="#f5fff0"/>
+    <rect x="12" y="20" width="46" height="36" rx="3" fill="white" stroke="#8cc63f" stroke-width="2"/>
+    <rect x="14" y="22" width="42" height="6" fill="#8cc63f"/>
+    <text x="35" y="52" text-anchor="middle" font-size="28" font-weight="900" fill="#222" font-family="sans-serif">75</text>
+    <!-- Butterfly -->
+    <ellipse cx="55" cy="13" rx="7" ry="4" fill="#d42b2b" opacity="0.8" transform="rotate(30 55 13)"/>
+    <ellipse cx="60" cy="17" rx="5" ry="3" fill="#d42b2b" opacity="0.6" transform="rotate(-20 60 17)"/>
+    <line x1="55" y1="13" x2="60" y2="17" stroke="#333" stroke-width="1"/>
+    <rect x="0" y="66" width="70" height="14" fill="#666"/>
+    <rect x="8" y="70" width="10" height="4" fill="white" opacity="0.6" rx="1"/>
+    <rect x="30" y="70" width="10" height="4" fill="white" opacity="0.6" rx="1"/>
+    <rect x="52" y="70" width="10" height="4" fill="white" opacity="0.6" rx="1"/>
+  </svg>`,
+
+  d100: `<svg viewBox="0 0 70 80" xmlns="http://www.w3.org/2000/svg">
+    <rect width="70" height="80" fill="#f5fff0"/>
+    <rect x="8" y="18" width="54" height="38" rx="3" fill="white" stroke="#1a5fa8" stroke-width="2.5"/>
+    <rect x="10" y="20" width="50" height="7" fill="#1a5fa8"/>
+    <text x="35" y="52" text-anchor="middle" font-size="26" font-weight="900" fill="#1a5fa8" font-family="sans-serif">100</text>
+    <!-- Dog running (classic 100) -->
+    <ellipse cx="57" cy="14" rx="7" ry="4" fill="#c8880a"/>
+    <circle cx="52" cy="12" r="4" fill="#a06808"/>
+    <line x1="54" y1="16" x2="52" y2="20" stroke="#a06808" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="57" y1="17" x2="57" y2="22" stroke="#a06808" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="60" y1="16" x2="62" y2="20" stroke="#a06808" stroke-width="1.5" stroke-linecap="round"/>
+    <rect x="0" y="66" width="70" height="14" fill="#666"/>
+    <rect x="8" y="70" width="10" height="4" fill="white" opacity="0.6" rx="1"/>
+    <rect x="30" y="70" width="10" height="4" fill="white" opacity="0.6" rx="1"/>
+    <rect x="52" y="70" width="10" height="4" fill="white" opacity="0.6" rx="1"/>
+  </svg>`,
+
+  d200: `<svg viewBox="0 0 70 80" xmlns="http://www.w3.org/2000/svg">
+    <rect width="70" height="80" fill="#fff8f8"/>
+    <rect x="5" y="16" width="60" height="42" rx="4" fill="white" stroke="#d42b2b" stroke-width="3"/>
+    <rect x="7" y="18" width="56" height="8" fill="#d42b2b"/>
+    <!-- Swallow / bird mascot -->
+    <path d="M52 12 Q58 8 65 10 Q60 14 56 12 Q62 10 64 14 Q58 16 52 12" fill="#336"/>
+    <text x="35" y="53" text-anchor="middle" font-size="25" font-weight="900" fill="#d42b2b" font-family="sans-serif">200</text>
+    <!-- Speed lines -->
+    <line x1="5" y1="42" x2="0" y2="42" stroke="#d42b2b" stroke-width="2" stroke-linecap="round"/>
+    <line x1="5" y1="47" x2="0" y2="47" stroke="#d42b2b" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="65" y1="42" x2="70" y2="42" stroke="#d42b2b" stroke-width="2" stroke-linecap="round"/>
+    <line x1="65" y1="47" x2="70" y2="47" stroke="#d42b2b" stroke-width="1.5" stroke-linecap="round"/>
+    <rect x="0" y="66" width="70" height="14" fill="#666"/>
+    <rect x="8" y="70" width="10" height="4" fill="white" opacity="0.6" rx="1"/>
+    <rect x="30" y="70" width="10" height="4" fill="white" opacity="0.6" rx="1"/>
+    <rect x="52" y="70" width="10" height="4" fill="white" opacity="0.6" rx="1"/>
+  </svg>`,
+};
+// SVG art colors are inlined as hex literals — no runtime substitution needed
+
+// ══════════════════════════════════════════
+// CARD DATA
+// ══════════════════════════════════════════
+const CARDS = {
+  accident:      {name:'Accident',      type:'hazard',     sub:'Danger',    km:0},
+  out_of_gas:    {name:'Out of Gas',    type:'hazard',     sub:'Danger',    km:0},
+  flat_tire:     {name:'Flat Tire',     type:'hazard',     sub:'Danger',    km:0},
+  stop:          {name:'Stop',          type:'hazard',     sub:'Danger',    km:0},
+  speed_limit:   {name:'Speed Limit',   type:'speed_limit',sub:'Hazard',    km:0},
+  repairs:       {name:'Repairs',       type:'remedy',     sub:'Remedy',    km:0, cures:'accident'},
+  gasoline:      {name:'Gasoline',      type:'remedy',     sub:'Remedy',    km:0, cures:'out_of_gas'},
+  spare_tire:    {name:'Spare Tire',    type:'remedy',     sub:'Remedy',    km:0, cures:'flat_tire'},
+  end_limit:     {name:'End of Limit',  type:'end_limit',  sub:'Remedy',    km:0, cures:'speed_limit'},
+  roll:          {name:'Roll!',         type:'remedy',     sub:'Remedy',    km:0, cures:'stop'},
+  driving_ace:   {name:'Driving Ace',   type:'safety',     sub:'Safety',    km:0, protects:['accident']},
+  fuel_tank:     {name:'Extra Tank',    type:'safety',     sub:'Safety',    km:0, protects:['out_of_gas']},
+  puncture_proof:{name:'Puncture-Proof',type:'safety',     sub:'Safety',    km:0, protects:['flat_tire']},
+  right_of_way:  {name:'Right of Way', type:'safety',     sub:'Safety',    km:0, protects:['stop','speed_limit']},
+  d25: {name:'25 km', type:'distance',sub:'Distance',km:25},
+  d50: {name:'50 km', type:'distance',sub:'Distance',km:50},
+  d75: {name:'75 km', type:'distance',sub:'Distance',km:75},
+  d100:{name:'100 km',type:'distance',sub:'Distance',km:100},
+  d200:{name:'200 km',type:'distance',sub:'Distance',km:200},
+};
+const DECK_DEF=[['accident',3],['out_of_gas',3],['flat_tire',3],['speed_limit',4],['stop',5],
+  ['repairs',6],['gasoline',6],['spare_tire',6],['end_limit',6],['roll',14],
+  ['driving_ace',1],['fuel_tank',1],['puncture_proof',1],['right_of_way',1],
+  ['d25',10],['d50',10],['d75',10],['d100',12],['d200',4]];
+const REMEDY_FOR={accident:'repairs',out_of_gas:'gasoline',flat_tire:'spare_tire',stop:'roll'};
+const SAFETY_FOR={accident:'driving_ace',out_of_gas:'fuel_tank',flat_tire:'puncture_proof',stop:'right_of_way',speed_limit:'right_of_way'};
+const TYPE_COLORS={hazard:'#d42b2b',speed_limit:'#e8a020',remedy:'#2a8a40',end_limit:'#2a8a40',safety:'#1a5fa8',distance:'#5a8a20'};
+
+function buildDeck(){let d=[];for(const[id,n] of DECK_DEF) for(let i=0;i<n;i++) d.push(id);return shuffle(d);}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+// ══════════════════════════════════════════
+// GAME STATE
+// ══════════════════════════════════════════
+let GS={}; // GS = Game State (renamed from G to avoid SVG color const collision)
+let handSort='none'; // 'none' | 'type' | 'playable'
+// Set default sort button active after DOM ready
+document.addEventListener('DOMContentLoaded',()=>{
+  const btn=document.getElementById('btn-sort-none');
+  if(btn) btn.classList.add('active');
+});
+
+function ps(){
+  return {
+    hand:[], km:0,
+    rolling:false, hazard:null, remedied:false,
+    speedLimit:0, safeties:[], coupFourre:[],
+    twoHundredCount:0, drawnThisTurn:false, drawnCardIdx:-1,
+    distancePlayed:[], // track distance cards played for visual pile
+  };
+}
+
+// ══════════════════════════════════════════
+// PROFILE & LOCALSTORAGE SYSTEM
+// ══════════════════════════════════════════
+const STORAGE_KEY='mille_bornes_profiles';
+const SAVE_KEY='mille_bornes_save';
+const LAST_PROFILE_KEY='mille_bornes_last_profile';
+let currentProfile=null;
+
+function loadProfiles(){
+  try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]'); }
+  catch(e){ return []; }
+}
+function saveProfiles(profiles){ localStorage.setItem(STORAGE_KEY,JSON.stringify(profiles)); }
+function getProfile(id){ return loadProfiles().find(p=>p.id===id)||null; }
+
+function showProfileModal(mode='select'){
+  // mode: 'select' (first load, no profile yet) | 'view' (mid-game, viewing stats)
+  renderProfileGrid(mode);
+  hideNewProfileForm();
+  const title=document.getElementById('profile-modal-title');
+  const sub=document.getElementById('profile-modal-sub');
+  if(mode==='view'){
+    title.textContent='Your Profiles';
+    sub.textContent='Click your profile to dismiss · Select another to switch';
+  } else {
+    title.textContent='Select Profile';
+    sub.textContent='Up to 5 profiles · Stats saved locally';
+  }
+  document.getElementById('profile-modal-overlay').classList.add('show');
+}
+function hideProfileModal(){ document.getElementById('profile-modal-overlay').classList.remove('show'); }
+function showNewProfileForm(){
+  document.getElementById('profile-inline-form').classList.add('show');
+  document.getElementById('profile-name-input').value='';
+  setTimeout(()=>document.getElementById('profile-name-input').focus(),50);
+  renderProfileGrid();
+}
+function hideNewProfileForm(){ document.getElementById('profile-inline-form').classList.remove('show'); }
+
+function renderProfileGrid(mode='select'){
+  const profiles=loadProfiles();
+  const formOpen=document.getElementById('profile-inline-form').classList.contains('show');
+  const grid=document.getElementById('profile-grid');
+  let html='';
+  for(const p of profiles){
+    const isActive=currentProfile&&currentProfile.id===p.id;
+    const wl=p.wins+p.losses>0
+      ?`<div class="profile-wl"><span class="w">${p.wins}W</span> <span class="l">${p.losses}L</span></div>`
+      :'<div class="profile-stat" style="opacity:0.5">No games yet</div>';
+    // Active profile in view mode: shows "playing" badge, click just dismisses
+    const clickFn=isActive&&mode==='view'?`hideProfileModal()`:`selectProfile('${p.id}')`;
+    const activeBadge=isActive?`<div style="font-size:0.48rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--lime);font-weight:800;margin-top:2px">▶ Playing</div>`:'';
+    html+=`<div class="profile-card${isActive?' active-profile':''}" onclick="${clickFn}">
+      <div class="profile-name">${p.name}</div>
+      ${wl}
+      ${p.highGameScore>0?`<div class="profile-stat">Best game: <span>${p.highGameScore}</span></div>`:''}
+      ${p.highRoundScore>0?`<div class="profile-stat">Best round: <span>${p.highRoundScore}</span></div>`:''}
+      ${activeBadge}
+      ${!isActive?`<div class="profile-delete" onclick="event.stopPropagation();deleteProfile('${p.id}')">✕ remove</div>`:''}
+    </div>`;
+  }
+  if(profiles.length<5&&!formOpen){
+    html+=`<div class="profile-card new-profile" onclick="showNewProfileForm()">
+      <div class="profile-new-icon">+</div>
+      <div class="profile-name" style="opacity:0.45;font-size:0.75rem">New Profile</div>
+    </div>`;
+  }
+  grid.innerHTML=html;
+}
+
+function createProfile(){
+  const name=document.getElementById('profile-name-input').value.trim();
+  if(!name){document.getElementById('profile-name-input').focus();return;}
+  const profiles=loadProfiles();
+  if(profiles.length>=5) return;
+  const newProfile={id:'p_'+Date.now(),name,wins:0,losses:0,highRoundScore:0,highGameScore:0};
+  profiles.push(newProfile);
+  saveProfiles(profiles);
+  hideNewProfileForm();
+  selectProfile(newProfile.id);
+}
+
+function selectProfile(id){
+  const p=getProfile(id);
+  if(!p) return;
+  const isMidGame=GS&&(GS.human?.km>0||GS.ai?.km>0||GS.discard?.length>0||GS.round>1);
+  const isDifferent=currentProfile&&currentProfile.id!==id;
+  if(isMidGame&&isDifferent){
+    window._pendingSwitchId=id;
+    hideProfileModal(); // close profile modal first so confirm appears cleanly
+    document.getElementById('switch-profile-modal').classList.add('show');
+    return;
+  }
+  _applyProfile(id);
+}
+
+function _applyProfile(id){
+  const p=getProfile(id);
+  if(!p) return;
+  currentProfile={...p};
+  localStorage.setItem(LAST_PROFILE_KEY,id);
+  updateProfileDisplay();
+  hideProfileModal();
+  const saved=loadGameState();
+  if(saved&&saved.profileId===id){
+    restoreGameState(saved);
+  } else {
+    clearGameState();
+    initGame();
+  }
+}
+
+function deleteProfile(id){
+  const p=getProfile(id);
+  if(!p) return;
+  window._pendingDeleteId=id;
+  document.getElementById('delete-profile-name').textContent=p.name;
+  hideProfileModal(); // close profile modal first so confirm appears cleanly
+  document.getElementById('delete-profile-modal').classList.add('show');
+}
+
+function confirmDeleteProfile(){
+  closeModal('delete-profile-modal');
+  const id=window._pendingDeleteId;
+  window._pendingDeleteId=null;
+  if(!id) return;
+  const profiles=loadProfiles().filter(p=>p.id!==id);
+  saveProfiles(profiles);
+  if(localStorage.getItem(LAST_PROFILE_KEY)===id) localStorage.removeItem(LAST_PROFILE_KEY);
+  const wasActive=currentProfile&&currentProfile.id===id;
+  if(wasActive){
+    currentProfile=null;
+    updateProfileDisplay();
+    clearGameState();
+  }
+  // Re-open profile modal — either to pick a new profile (if deleted active) or continue managing
+  showProfileModal(wasActive?'select':'view');
+}
+
+function askSwitchProfile(){
+  // Open profile modal in view mode — confirm only fires if they pick a different profile
+  showProfileModal('view');
+}
+function confirmSwitchProfile(){
+  closeModal('switch-profile-modal');
+  clearGameState();
+  const id=window._pendingSwitchId;
+  window._pendingSwitchId=null;
+  if(id) _applyProfile(id);
+  else showProfileModal('select');
+}
+
+function recordGameResult(humanWon, roundScores, finalHumanScore){
+  if(!currentProfile) return;
+  const profiles=loadProfiles();
+  const idx=profiles.findIndex(p=>p.id===currentProfile.id);
+  if(idx===-1) return;
+  const p=profiles[idx];
+  if(humanWon) p.wins++; else p.losses++;
+  const bestRound=Math.max(...roundScores);
+  if(bestRound>p.highRoundScore) p.highRoundScore=bestRound;
+  if(finalHumanScore>p.highGameScore) p.highGameScore=finalHumanScore;
+  saveProfiles(profiles);
+  currentProfile={...p};
+  updateProfileDisplay();
+}
+
+// Game state persistence
+function saveGameState(){
+  if(!currentProfile) return;
+  try{
+    localStorage.setItem(SAVE_KEY,JSON.stringify({profileId:currentProfile.id,gs:JSON.stringify(GS),ts:Date.now()}));
+    dbgSave(`Saved — Round ${GS.round}, Turn: ${GS.turn}, Human: ${GS.human?.km}km, AI: ${GS.ai?.km}km`);
+  }catch(e){ dbgWarn(`Save failed: ${e.message}`); }
+}
+function loadGameState(){
+  try{ const raw=localStorage.getItem(SAVE_KEY); if(!raw) return null; const s=JSON.parse(raw); s.gs=JSON.parse(s.gs); return s; }catch(e){return null;}
+}
+function clearGameState(){ localStorage.removeItem(SAVE_KEY); }
+
+function restoreGameState(saved){
+  GS=saved.gs;
+  dbg(`🔄 Game restored from save — Round ${GS.round}, Human: ${GS.human?.km}km, AI: ${GS.ai?.km}km, Deck: ${GS.deck?.length}`,'dev');
+  document.getElementById('sc-round').textContent=GS.round;
+  document.getElementById('sc-human').textContent=GS.totalScores.human;
+  document.getElementById('sc-ai').textContent=GS.totalScores.ai;
+  
+  render();
+  if(GS.roundOver){
+    dbg('Restore: round was over, re-showing score modal','dev');
+    const last=GS.scoreHistory[GS.scoreHistory.length-1];
+    if(last){
+      // Check if game is over (5000pts reached)
+      if(GS.totalScores.human>=5000||GS.totalScores.ai>=5000){
+        const gtitle=GS.totalScores.human>=5000?'🏆 You Win the Game!':'🤖 AI Wins the Game!';
+        document.getElementById('game-modal-title').textContent=gtitle;
+        const rows=scoreTableRows(last.sc,true);
+        document.getElementById('game-recap').innerHTML=`<table class="score-tbl">${rows}</table>`;
+        document.getElementById('game-modal').classList.add('show');
+      } else {
+        const rows=scoreTableRows(last.sc,true);
+        const w=last.winner;
+        const rtitle=w==='human'?'🏁 You Win the Round!':w==='ai'?'AI Wins the Round':w===null?'Round Over — Tie':'Round Over';
+        document.getElementById('round-modal-title').textContent=rtitle;
+        document.getElementById('round-score-tbl').innerHTML=rows;
+        document.getElementById('round-modal').classList.add('show');
+      }
+    } else {
+      nextRound();
+    }
+    return;
+  }
+  if(GS.turn==='ai'&&!GS.roundOver){
+    setStatus('Resuming — AI is thinking...','info');
+    setTimeout(()=>{GS.ai.drawnThisTurn=false;aiDraw();},800);
+  } else if(GS.deck.length===0){
+    GS.human.drawnThisTurn=true;
+    setStatus('Game restored. Deck empty — play or discard.','warn');
+  } else {
+    setStatus('Game restored. Your turn — click the draw pile.','info');
+  }
+}
+
+// ══════════════════════════════════════════
+// DEBUG SYSTEM
+// ══════════════════════════════════════════
+const DBG_MAX=200;
+let DBG_LOG=[]; // {t, msg, type}
+let DBG_SHOW=false;
+let DBG_SHOW_AI=false;
+
+function dbg(msg,type=''){
+  const t=new Date().toLocaleTimeString('en',{hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  DBG_LOG.push({t,msg,type});
+  if(DBG_LOG.length>DBG_MAX) DBG_LOG.shift();
+  if(DBG_SHOW) dbgRender();
+}
+function dbgSave(msg){ dbg(`💾 ${msg}`,'dsave'); }
+function dbgWarn(msg){ dbg(`⚠ ${msg}`,'dwarn'); }
+function dbgEvent(msg){ dbg(`⚡ ${msg}`,'dev'); }
+
+function dbgRender(){
+  const el=document.getElementById('debug-log');
+  if(!el) return;
+  const showAI=document.getElementById('dbg-show-ai-hand')?.checked;
+  el.innerHTML=DBG_LOG.map(e=>{
+    let msg=e.msg;
+    if(!showAI){
+      msg=msg.replace(/AI drew: \[([^\]]+)\]/g,'AI drew: [hidden]');
+      msg=msg.replace(/AI hand: \[([^\]]*)\]/g,'AI hand: [hidden]');
+      msg=msg.replace(/AI discard scores: .+/g,'AI discard scores: [hidden]');
+    }
+    return `<div class="dle ${e.type||''}"><span class="dt">${e.t}</span>${msg}</div>`;
+  }).join('');
+  if(document.getElementById('dbg-auto-scroll')?.checked){
+    el.scrollTop=el.scrollHeight;
+  }
+}
+
+function toggleDebug(){
+  DBG_SHOW=!DBG_SHOW;
+  document.getElementById('debug-panel').classList.toggle('show',DBG_SHOW);
+  document.getElementById('debug-hint').style.display=DBG_SHOW?'none':'block';
+  if(DBG_SHOW) dbgRender();
+}
+
+function dbgCopy(){
+  const text=DBG_LOG.map(e=>`[${e.t}] ${e.msg}`).join('\n');
+  // Try clipboard API first (works in browser, blocked in sandboxed iframe)
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(()=>{
+      const btn=document.querySelector('.debug-copy');
+      const orig=btn.textContent; btn.textContent='Copied!';
+      setTimeout(()=>btn.textContent=orig,1500);
+    }).catch(()=>dbgShowTextarea(text));
+  } else {
+    dbgShowTextarea(text);
+  }
+}
+function dbgShowTextarea(text){
+  // Fallback: show log in a selectable textarea overlay
+  const existing=document.getElementById('dbg-textarea-overlay');
+  if(existing){ existing.remove(); return; }
+  const div=document.createElement('div');
+  div.id='dbg-textarea-overlay';
+  div.style.cssText='position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,0.92);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:20px';
+  div.innerHTML=`<div style="color:var(--lime);font-family:Nunito,sans-serif;font-size:0.7rem;letter-spacing:0.1em">SELECT ALL (Ctrl+A) AND COPY</div>
+    <textarea style="width:90%;max-width:700px;height:60vh;font-family:monospace;font-size:0.65rem;background:#111;color:#ccc;border:1px solid #444;padding:8px;resize:none" readonly>${text}</textarea>
+    <button onclick="document.getElementById('dbg-textarea-overlay').remove()" style="font-family:Nunito,sans-serif;padding:6px 18px;background:var(--lime);color:var(--ink);border:none;border-radius:4px;cursor:pointer;font-weight:800">Close</button>`;
+  document.body.appendChild(div);
+  div.querySelector('textarea').select();
+}
+function dbgClear(){ DBG_LOG=[]; dbgRender(); }
+
+
+// Keyboard shortcut
+document.addEventListener('keydown',e=>{
+  if(e.shiftKey&&e.key==='D') toggleDebug();
+});
+
+function updateProfileDisplay(){
+  const el=document.getElementById('sc-profile');
+  const wl=document.getElementById('sc-profile-wl');
+  if(!el) return;
+  if(currentProfile){
+    el.textContent=currentProfile.name;
+    if(wl) wl.textContent=(currentProfile.wins+currentProfile.losses>0)?`${currentProfile.wins}W · ${currentProfile.losses}L`:'';
+  } else {
+    el.textContent='—';
+    if(wl) wl.textContent='';
+  }
+}
+
+function initProfileSystem(){
+  document.getElementById('profile-name-input').addEventListener('keydown',e=>{ if(e.key==='Enter') createProfile(); });
+  const profiles=loadProfiles();
+  const lastId=localStorage.getItem(LAST_PROFILE_KEY);
+  const lastProfile=lastId?getProfile(lastId):null;
+
+  if(lastProfile){
+    // Auto-select last used profile
+    currentProfile={...lastProfile};
+    updateProfileDisplay();
+    const saved=loadGameState();
+    if(saved&&saved.profileId===lastProfile.id){
+      restoreGameState(saved);
+    } else {
+      initGame();
+    }
+  } else {
+    // No last profile — init game in background, show modal
+    initGame();
+    showProfileModal('select');
+  }
+}
+
+function initGame(){
+  GS={round:1,totalScores:{human:0,ai:0},scoreHistory:[]};
+  startRound();
+}
+
+function startRound(){
+  GS.deck=buildDeck(); GS.discard=[];
+  GS.human=ps(); GS.ai=ps();
+  GS.selected=null; GS.roundOver=false;
+  GS.target=700; GS.extensionDeclared=false; GS.extensionCaller=null; GS.turn=GS.round%2===1?'human':'ai';
+  GS.cfPending=null;
+  GS.aiCFPending=null;
+  GS.extensionPending=false;
+  GS.deckEmptied=false;
+  for(let i=0;i<6;i++){GS.human.hand.push(GS.deck.pop());GS.ai.hand.push(GS.deck.pop());}
+  document.getElementById('sc-round').textContent=GS.round;
+  
+  render();
+  saveGameState(); // save after round is dealt — prevents replaying previous round
+  dbg(`── Round ${GS.round} dealt ──`,'dev');
+  dbg(`Human hand: ${GS.human.hand.map(c=>CARDS[c].name).join(', ')}`);
+  dbg(`AI hand: [${GS.ai.hand.map(c=>CARDS[c].name).join(', ')}]`); // masked by default in debug
+  dbg(`Deck: ${GS.deck.length} cards remaining`);
+  if(GS.turn==='ai'){
+    setStatus('AI goes first this round…','info');
+    setTimeout(()=>{GS.ai.drawnThisTurn=false; aiDraw();},1200);
+  } else {
+    setStatus('Click the draw pile to start your turn.','info');
+  }
+}
+
+// ══════════════════════════════════════════
+// DRAW
+// ══════════════════════════════════════════
+function humanDraw(){
+  if(GS.turn!=='human'||GS.roundOver) return;
+  if(GS.human.drawnThisTurn){
+    if(GS.deck.length===0) setStatus('Deck empty — play or discard from your hand.','warn');
+    else setStatus('You already drew a card this turn.','warn');
+    return;
+  }
+  if(GS.deck.length===0){
+    GS.deckEmptied=true;
+    GS.human.drawnThisTurn=true;
+    render();
+    setStatus('Deck empty — play or discard from your hand.','warn');
+    return;
+  }
+  const c=GS.deck.pop();
+  GS.human.hand.push(c);
+  GS.human.drawnThisTurn=true;
+  GS.human.drawnCardIdx=GS.human.hand.length-1; // track which card was just drawn
+  if(GS.deck.length===0) GS.deckEmptied=true; // flag when THIS draw empties the deck
+  if(GS.cfPending){ GS.cfPending=null; }
+  dbg(`Human drew: ${CARDS[c].name} (${GS.deck.length} left in deck)${GS.deck.length===0?' — DECK EMPTY':''}`);
+  render();
+  const cd=CARDS[c];
+  // CF opportunity: drew a safety while WE have a matching hazard/speed limit on us (not the AI's)
+  // NOTE: after drawing, CF window is closed — this is informational only, it will score as regular safety
+  // The REAL CF opportunity (before draw) was already handled via cfPending from checkHumanCFOpportunity
+  // So we do NOT set cfPending here — just inform the player they can play it as a late safety
+  if(cd.type==='safety'){
+    const pr=cd.protects;
+    if((GS.human.hazard&&pr.includes(GS.human.hazard))||(GS.human.speedLimit>0&&pr.includes('speed_limit'))){
+      setStatus(`${cd.name} drawn — play it to remove the ${GS.human.hazard?CARDS[GS.human.hazard].name:'speed limit'}, but you'll still need a Roll! (not a Coup-Fourré).`,'info');
+      return;
+    }
+  }
+  setStatus(`Drew: ${cd.name}. Play a card or discard.`,'info');
+}
+
+function aiDraw(){
+  if(GS.deck.length===0){
+    GS.deckEmptied=true;
+    GS.ai.drawnThisTurn=true;
+    setTimeout(()=>aiTurn(),700);
+    return;
+  }
+  const c=GS.deck.pop();
+  GS.ai.hand.push(c);
+  GS.ai.drawnThisTurn=true;
+  if(GS.deck.length===0) GS.deckEmptied=true; // flag when THIS draw empties the deck
+  dbg(`AI drew: [${CARDS[c].name}] (${GS.deck.length} left in deck)${GS.deck.length===0?' — DECK EMPTY':''}`);
+  setTimeout(()=>aiTurn(),700);
+}
+
+function aiCF(sid){
+  const idx=GS.ai.hand.indexOf(sid);
+  if(idx===-1) return;
+  GS.ai.hand.splice(idx,1);
+  applyS(GS.ai,sid,true);
+  GS.discard.push(sid);
+  showCF('⚡ AI plays Coup-Fourré and steals the turn!');
+  GS.turn='ai'; GS.ai.drawnThisTurn=false;
+  render();
+  setTimeout(()=>aiDraw(),1800);
+}
+
+// ══════════════════════════════════════════
+// PLAY
+// ══════════════════════════════════════════
+function playSelected(){
+  if(GS.selected===null||GS.turn!=='human'||GS.roundOver) return;
+  const idx=GS.selected, cid=GS.human.hand[idx];
+  // CF safety can be played BEFORE drawing — it's an immediate counter
+  const isCFPlay=GS.cfPending&&GS.cfPending.safetyId===cid;
+  if(!GS.human.drawnThisTurn&&!isCFPlay){setStatus('Draw a card first!','warn');return;}
+  const r=tryPlay('human',cid);
+  if(r.ok){
+    dbg(`Human played: ${CARDS[cid].name} (${CARDS[cid].type})`);
+    GS.human.hand.splice(idx,1); GS.selected=null;
+    clearDropHighlights();
+    // CF played before draw: immediately draw replacement card to restore to 6, then free turn
+    if(isCFPlay&&!GS.human.drawnThisTurn){
+      checkWin(); if(GS.roundOver) return;
+      // Draw replacement card to restore to 6
+      if(GS.deck.length>0){ GS.human.hand.push(GS.deck.pop()); }
+      dbg(`Human Coup-Fourré: played ${CARDS[cid].name}, hand restored to ${GS.human.hand.length}`);
+      GS.human.drawnThisTurn=false;
+      GS.human.drawnCardIdx=-1;
+      GS.cfPending=null;
+      render();
+      setStatus('Coup-Fourré! You stole the turn — draw a card to continue.','good');
+      return;
+    }
+    // Extension offer: player hit exactly 700 on this turn — pause and ask
+    if(r.canOfferExt){
+      // Don't call checkWin here — that would immediately end the round.
+      // Let the player decide first, then endRoundNow() or declareExtension() handles it.
+      GS.extensionPending=true;
+      render();
+      setStatus('You reached 700 km! Extend to 1000 or end the round.','warn');
+      return;
+    }
+    checkWin();
+    if(!GS.roundOver&&!r.stealTurn&&!r.freeTurn) endHumanTurn();
+    else if(!GS.roundOver){
+      GS.human.drawnThisTurn=false;
+      render();
+      setStatus(r.freeTurn?'Safety played! Take a free turn — draw again.':'Coup-Fourré! You play again — draw a new card.','good');
+    }
+  } else setStatus(r.reason,'bad');
+  render();
+}
+
+function discardSelected(){
+  if(GS.selected===null||GS.turn!=='human'||GS.roundOver) return;
+  if(!GS.human.drawnThisTurn){setStatus('Draw a card first!','warn');return;}
+  doDiscard(GS.selected);
+}
+
+function doDiscard(idx){
+  const cid=GS.human.hand[idx];
+  GS.human.hand.splice(idx,1);
+  GS.discard.push(cid);
+  GS.selected=null;
+  clearDropHighlights();
+  dbg(`Human discarded: ${CARDS[cid].name}`);
+  setStatus(`Discarded: ${CARDS[cid].name}.`,'info');
+  checkWin();
+  if(GS.roundOver) return;
+  // If deck empty and both hands now empty, end round
+  if(GS.deck.length===0&&GS.human.hand.length===0&&GS.ai.hand.length===0){
+    endRound('deck'); return;
+  }
+  endHumanTurn();
+  render();
+}
+
+function tryPlay(who,cid){
+  const p=GS[who], opp=who==='human'?GS.ai:GS.human, cd=CARDS[cid];
+  if(cd.type==='distance')    return playDist(p,cd,cid);
+  if(cd.type==='hazard')      return playHaz(opp,cd,cid,who);
+  if(cd.type==='speed_limit') return playSpd(opp,cid,who);
+  if(cd.type==='remedy')      return playRem(p,cd,cid);
+  if(cd.type==='end_limit')   return playEnd(p,cid);
+  if(cd.type==='safety')      return playSaf(p,cd,cid,who);
+  return{ok:false,reason:'Unknown card type.'};
+}
+
+function hasRoW(p){ return p.safeties.includes('right_of_way'); }
+
+function playDist(p,cd,cid){
+  if(!hasRoW(p)){
+    if(!p.rolling) return{ok:false,reason:"You need a Roll! card on your drive pile before playing distance."};
+  }
+  if(p.hazard) return{ok:false,reason:`You have a hazard: ${CARDS[p.hazard].name}. Play the remedy first, then Roll! if needed.`};
+  if(p.remedied&&!hasRoW(p)) return{ok:false,reason:"You fixed the hazard — now play a Roll! card to get moving again."};
+  if(p.speedLimit>0&&cd.km>50) return{ok:false,reason:`Speed limit active (${p.speedLimit} stack${p.speedLimit>1?'s':''}) — only 25 or 50 km cards allowed.`};
+  if(cid==='d200'){if(p.twoHundredCount>=2) return{ok:false,reason:"Max two 200 km cards per round."};p.twoHundredCount++;dbg(`200km played — twoHundredCount now ${p.twoHundredCount} for ${p===GS.human?'human':'ai'}`,'dcf');}
+  if(p.km+cd.km>GS.target) return{ok:false,reason:`That would exceed the ${GS.target} km target!`};
+  p.km+=cd.km;
+  p.distancePlayed.push(cid);
+  GS.discard.push(cid);
+  // Check if this play hits exactly 700 and extension hasn't been declared — flag for offer
+  const hitsTarget=p.km>=GS.target;
+  const canOfferExt=p.km===700&&GS.target===700&&!GS.extensionDeclared;
+  return{ok:true,hitsTarget,canOfferExt};
+}
+
+function playHaz(opp,cd,cid,who){
+  if(!opp.rolling&&!hasRoW(opp)) return{ok:false,reason:"Can't play a hazard — opponent isn't rolling yet."};
+  if(opp.hazard) return{ok:false,reason:`Opponent already has a hazard: ${CARDS[opp.hazard].name}.`};
+  const imm=SAFETY_FOR[cid];
+  if(opp.safeties.includes(imm)) return{ok:false,reason:`Opponent is immune to ${cd.name}!`};
+  opp.hazard=cid; opp.rolling=false; opp.remedied=false;
+  GS.discard.push(cid);
+  if(who==='human'){
+    // Check if AI has CF in hand
+    checkAICFFromHand(cid);
+  } else {
+    // AI played hazard on human — check if human has CF in hand RIGHT NOW
+    checkHumanCFOpportunity(cid);
+  }
+  return{ok:true};
+}
+
+function checkHumanCFOpportunity(hazardId){
+  const saf=SAFETY_FOR[hazardId]; if(!saf) return;
+  const idx=GS.human.hand.indexOf(saf);
+  if(idx!==-1){
+    GS.cfPending={safetyId:saf,hazardId};
+    render();
+    setStatus(`⚡ Coup-Fourré available! Your ${CARDS[saf].name} is glowing — play it now to counter and steal the turn!`,'warn');
+  }
+}
+
+function humanCoupFourre(){
+  if(!GS.cfPending) return;
+  const {safetyId}=GS.cfPending;
+  const idx=GS.human.hand.indexOf(safetyId);
+  if(idx===-1){GS.cfPending=null;return;}
+  GS.human.hand.splice(idx,1);
+  applyS(GS.human,safetyId,true);
+  GS.discard.push(safetyId);
+  GS.cfPending=null;
+  showCF('⚡ Coup-Fourré! You counter and steal the next turn!');
+  GS.turn='human'; GS.human.drawnThisTurn=false; GS.human.drawnCardIdx=-1;
+  render();
+  setStatus('Coup-Fourré! You stole the turn — draw a card to continue.','good');
+}
+
+function declineCoupFourre(){
+  // Called if player draws instead of playing the CF — just clear the pending state
+  GS.cfPending=null;
+}
+
+function checkAICFFromHand(hid){
+  // CF only valid immediately after the hazard lands — check synchronously
+  const saf=SAFETY_FOR[hid]; if(!saf) return;
+  const idx=GS.ai.hand.indexOf(saf);
+  if(idx!==-1){
+    // Mark that AI will CF — fires after human turn ends (slight delay for UX only, not logic)
+    GS.aiCFPending={safetyId:saf};
+  }
+}
+
+function playSpd(opp,cid,who){
+  if(opp.safeties.includes('right_of_way')) return{ok:false,reason:"Opponent has Right of Way — immune to speed limits!"};
+  if(opp.speedLimit>=4) return{ok:false,reason:"Speed limit already at maximum (4 cards)."};
+  opp.speedLimit++;
+  GS.discard.push(cid);
+  if(who==='ai') checkHumanCFOpportunity('speed_limit');
+  else checkAICFFromHand('speed_limit'); // human played speed limit — check if AI has Right of Way for CF
+  return{ok:true};
+}
+
+function playRem(p,cd,cid){
+  if(cid==='roll'){
+    if(p.rolling&&!p.remedied){
+      // If they have Right of Way, rolling without needing Roll is expected — soft warn but allow discard path
+      if(hasRoW(p)) return{ok:false,reason:"You have Right of Way — you don't need a Roll card. Discard it instead"};
+      return{ok:false,reason:"You're already rolling"};
+    }
+    if(p.hazard&&p.hazard!=='stop') return{ok:false,reason:`Fix the ${CARDS[p.hazard].name} first, then play Roll`};
+    p.hazard=null; p.rolling=true; p.remedied=false;
+    GS.discard.push(cid); return{ok:true};
+  }
+  // Other remedies (repairs, gasoline, spare tire)
+  if(!p.hazard) return{ok:false,reason:'No active hazard to fix'};
+  if(p.hazard!==cd.cures){
+    return{ok:false,reason:`${cd.name} doesn't fix ${CARDS[p.hazard].name} — need ${CARDS[REMEDY_FOR[p.hazard]].name}`};
+  }
+  p.hazard=null;
+  if(hasRoW(p)){
+    // Right of Way: remedy alone gets you rolling again, no Roll card needed
+    p.rolling=true; p.remedied=false;
+  } else {
+    // Standard: remedy fixes hazard but you STILL need a Roll card to drive again
+    p.rolling=false; p.remedied=true;
+  }
+  GS.discard.push(cid);
+  const msg=hasRoW(p)
+    ? `${cd.name} played — Right of Way means you're rolling again!`
+    : `${cd.name} played. Now play a Roll! card to get moving again.`;
+  return{ok:true,msg};
+}
+
+function playEnd(p,cid){
+  if(p.speedLimit<=0) return{ok:false,reason:"No speed limit to remove!"};
+  p.speedLimit--;
+  GS.discard.push(cid);
+  const msg=p.speedLimit>0?`Speed limit reduced — ${p.speedLimit} still active!`:'Speed limit cleared!';
+  return{ok:true,msg};
+}
+
+function playSaf(p,cd,cid,who){
+  if(p.safeties.includes(cid)) return{ok:false,reason:'Safety already played!'};
+  const pr=cd.protects;
+  // CF is ONLY valid if cfPending is set — meaning the hazard was played THIS turn
+  // A safety played on a later turn (when hazard already exists) is a late safety — not CF
+  const isCF=who==='human'&&GS.cfPending&&GS.cfPending.safetyId===cid;
+  applyS(p,cid,isCF);
+  GS.discard.push(cid);
+  if(isCF){
+    GS.cfPending=null;
+    showCF('⚡ Coup-Fourré! You counter and steal the next turn!');
+    return{ok:true,stealTurn:true};
+  }
+  // Late safety play: removes hazard but player still needs Roll to drive (no CF bonus)
+  if(GS.cfPending&&who==='human') GS.cfPending=null;
+  return{ok:true,freeTurn:true};
+}
+
+function applyS(p,cid,isCF){
+  p.safeties.push(cid); if(isCF) p.coupFourre.push(cid);
+  const pr=CARDS[cid].protects;
+  if(p.hazard&&pr.includes(p.hazard)){
+    p.hazard=null;
+    if(isCF||hasRoW(p)){
+      // CF or Right of Way: immediately rolling again, no Roll card needed
+      p.rolling=true; p.remedied=false;
+    } else {
+      // Late safety play: hazard removed but need Roll to drive (same as remedy)
+      p.rolling=false; p.remedied=true;
+    }
+  }
+  if(p.speedLimit>0&&pr.includes('speed_limit')) p.speedLimit=0;
+  // Right of Way also clears remedied state and grants rolling immediately
+  if(cid==='right_of_way'&&!p.hazard){ p.remedied=false; p.rolling=true; }
+}
+
+// ══════════════════════════════════════════
+// TURNS
+// ══════════════════════════════════════════
+function endHumanTurn(){
+  GS.human.drawnThisTurn=false;
+  GS.human.drawnCardIdx=-1; // clear drawn card highlight
+  GS.cfPending=null;
+  // If AI has a CF pending (from a hazard just played), fire it now
+  if(GS.aiCFPending){
+    const {safetyId}=GS.aiCFPending;
+    GS.aiCFPending=null;
+    const idx=GS.ai.hand.indexOf(safetyId);
+    if(idx!==-1){
+      GS.ai.hand.splice(idx,1);
+      applyS(GS.ai,safetyId,true);
+      GS.discard.push(safetyId);
+      GS.turn='ai'; render();
+      showCF('⚡ AI plays Coup-Fourré — turn stolen!');
+      dbg(`AI Coup-Fourré: played ${CARDS[safetyId].name}`);
+      // Draw replacement card for AI to restore to 6 — only if deck has cards
+      if(GS.deck.length>0){
+        GS.ai.hand.push(GS.deck.pop());
+        dbg(`AI CF hand restore: drew 1 card (${GS.ai.hand.length} in hand)`);
+      }
+      // Check hand balance — if deck empty, human may need parity adjustment
+      // (no adjustment needed; both players simply play out remaining hands)
+      saveGameState(); // save after CF fires
+      setTimeout(()=>{GS.ai.drawnThisTurn=false;aiDraw();},1800);
+      return;
+    }
+  }
+  GS.turn='ai'; render();
+  setStatus("AI is thinking…",'info');
+  setTimeout(()=>{GS.ai.drawnThisTurn=false;aiDraw();},500);
+}
+
+function endAiTurn(){
+  GS.ai.drawnThisTurn=false; GS.turn='human';
+  // If deck empty, skip draw step — player goes straight to play/discard
+  if(GS.deck.length===0){
+    GS.human.drawnThisTurn=true;
+  }
+  // Soft lock guard: if deck empty and human has no cards, end round
+  if(GS.human.hand.length===0&&GS.deck.length===0){
+    dbg(`Soft lock prevented: human hand empty, deck empty`);
+    endRound('deck'); return;
+  }
+  saveGameState(); // save after AI turn fully resolves
+  dbg(`Turn end — Human: ${GS.human.hand.length} cards, AI: ${GS.ai.hand.length} cards, Deck: ${GS.deck.length}`);
+  render();
+  if(GS.cfPending){
+    setStatus(`⚡ Coup-Fourré available! Your ${CARDS[GS.cfPending.safetyId].name} is glowing — play it NOW before drawing!`,'warn');
+  } else if(GS.deck.length===0){
+    setStatus('Deck empty — play or discard from your hand.','warn');
+  } else {
+    setStatus("Your turn — click the draw pile.",'info');
+  }
+}
+
+function declareExtension(){
+  if(GS.target===1000) return;
+  GS.target=1000; GS.extensionDeclared=true; GS.extensionCaller='human'; GS.extensionPending=false;
+  
+  setStatus('Extension declared! Race is now to 1000 km!','warn');
+  endHumanTurn();
+}
+function endRoundNow(){
+  GS.extensionPending=false;
+  endRound('deck'); // let km/score tiebreaker decide winner — player chose not to extend
+}
+
+// ══════════════════════════════════════════
+// AI — updated for corrected rules
+// ══════════════════════════════════════════
+// ── AI HELPERS ──────────────────────────────
+
+// How many copies of a card are unaccounted for from the AI's perspective:
+// total - in discard pile (publicly visible to both players)
+// The AI does NOT get to see the human's hand — same information symmetry as a real opponent.
+// excludeSelf: when scoring a card the AI is holding, subtract 1 so it doesn't count itself
+function aiCardsRemaining(cardId, excludeSelf=false){
+  const total=DECK_DEF.find(([k])=>k===cardId)?.[1]||0;
+  const inDiscard=GS.discard.filter(c=>c===cardId).length;
+  let count=total-inDiscard;
+  if(excludeSelf) count=Math.max(0,count-1);
+  return count;
+}
+
+// How depleted is the opponent's remedy for a given hazard? (0=all gone, 1=full supply)
+// Returns a multiplier: 1.0 = all remedies available, 0.0 = none left visible
+function aiRemedyDepletionFactor(hazId){
+  const remedyId=REMEDY_FOR[hazId];
+  if(!remedyId) return 1.0;
+  const total=DECK_DEF.find(([k])=>k===remedyId)?.[1]||1;
+  // Count remedies that are "gone from opponent's perspective":
+  // - in discard pile (used or discarded by either player)
+  // - in AI's own hand (opponent can't draw them)
+  const inDiscard=GS.discard.filter(c=>c===remedyId).length;
+  const inAiHand=GS.ai.hand.filter(c=>c===remedyId).length;
+  const gone=inDiscard+inAiHand;
+  return Math.max(0,(total-gone)/total);
+}
+
+// How many Roll cards are still available to the opponent?
+function aiRollsRemaining(){
+  const total=14; // 14 Roll cards in deck
+  const inDiscard=GS.discard.filter(c=>c==='roll').length;
+  const inAiHand=GS.ai.hand.filter(c=>c==='roll').length;
+  return Math.max(0,total-inDiscard-inAiHand);
+}
+
+function aiHazardPlayable(hazId){
+  return aiCardsRemaining(hazId)>0;
+}
+
+function aiScoreEstimate(p,win,opp){
+  let s=p.km+p.safeties.length*100+p.coupFourre.length*300;
+  if(p.safeties.length===4) s+=300;
+  if(win){ s+=400; if(p.twoHundredCount===0) s+=300; if(opp.km===0) s+=500; }
+  if(GS.extensionDeclared){
+    const calledIt=GS.extensionCaller==='ai';
+    if((calledIt&&win)||(!calledIt&&!win)) s+=200; // caller wins or opponent of caller wins
+  }
+  return s;
+}
+
+function aiTurn(){
+  if(GS.roundOver) return;
+  const ai=GS.ai, h=GS.human;
+  let played=false;
+  let popMsg='', popType='discard';
+
+  const kmGap=ai.km-h.km; // positive = AI ahead
+  const closeToTarget=ai.km>=GS.target-100;
+  const oppCloseToTarget=h.km>=GS.target-100;
+  const deckLow=GS.deck.length<15;
+
+  // AI state snapshot for debugging
+  dbg(`AI state: rolling:${ai.rolling} hazard:${ai.hazard||'none'} remedied:${ai.remedied} speedLimit:${ai.speedLimit} km:${ai.km} 200s:${ai.twoHundredCount} hand:[${ai.hand.map(c=>CARDS[c]?.name).join(', ')}]`);
+  // (already handled at turn-end via aiCFPending, but handle normal safety plays below)
+
+  // ── 2. Fix own hazard ──
+  if(!played&&ai.hazard){
+    const nd=ai.hazard==='stop'?'roll':REMEDY_FOR[ai.hazard];
+    const i=ai.hand.indexOf(nd);
+    if(i!==-1){const r=tryPlay('ai',nd);if(r.ok){popMsg=`🔧 ${CARDS[nd].name}`;popType='remedy';ai.hand.splice(i,1);played=true;}}
+  }
+  // ── 3. Roll after remedy ──
+  if(!played&&ai.remedied&&!ai.hazard){
+    const i=ai.hand.indexOf('roll');
+    if(i!==-1){const r=tryPlay('ai','roll');if(r.ok){popMsg=`🟢 Roll!`;popType='remedy';ai.hand.splice(i,1);played=true;}}
+  }
+  // ── 4. Fix speed limit ──
+  if(!played&&ai.speedLimit>0){
+    const i=ai.hand.indexOf('end_limit');
+    if(i!==-1){const r=tryPlay('ai','end_limit');if(r.ok){popMsg=`✅ End Limit`;popType='remedy';ai.hand.splice(i,1);played=true;}}
+  }
+  // ── 5. Get initial Roll ──
+  if(!played&&!ai.rolling&&!ai.hazard&&!ai.remedied){
+    const i=ai.hand.indexOf('roll');
+    if(i!==-1){const r=tryPlay('ai','roll');if(r.ok){popMsg=`🟢 Roll!`;popType='remedy';ai.hand.splice(i,1);played=true;}}
+  }
+
+  // ── 6. Safety plays — strategic timing ──
+  if(!played){
+    for(const c of [...ai.hand]){
+      if(CARDS[c].type!=='safety'||ai.safeties.includes(c)) continue;
+      const matchingHazards=Object.entries(SAFETY_FOR).filter(([,saf])=>saf===c).map(([haz])=>haz);
+      // CF still possible if any matching hazard not yet fully discarded
+      const cfPossible=matchingHazards.some(h=>aiHazardPlayable(h));
+      const completesSet=ai.safeties.length===3; // playing this gets 300pt bonus
+      const deckLow=GS.deck.length<15;
+      const deckEmpty=GS.deck.length===0;
+      // Play if: CF impossible, or opponent about to win, or deck low/empty, or completing set
+      if(!cfPossible||oppCloseToTarget||deckLow||deckEmpty||completesSet){
+        const r=tryPlay('ai',c);
+        if(r.ok){
+          ai.hand.splice(ai.hand.indexOf(c),1); played=true;
+          popMsg=`🛡 ${CARDS[c].name}`; popType='safety';
+          aiPop(popMsg,popType);
+          if(r.freeTurn){
+            checkWin(); if(GS.roundOver) return;
+            render();
+            setTimeout(()=>{ GS.ai.drawnThisTurn=false; aiDraw(); },800);
+            return;
+          }
+          break;
+        }
+      }
+    }
+  }
+
+  // ── 7. Extension decision — checked AFTER distance play so AI has correct km ──
+  // (moved below step 10 — extension fires after distance card takes AI to 700)
+
+  // ── 8. Play hazard on human ──
+  if(!played&&!h.hazard&&(h.rolling||hasRoW(h))){
+    // Suppress hazard play if AI can finish the round this turn — playing a hazard would delay own win
+    const kmToTarget=GS.target-ai.km;
+    const canFinishNow=(ai.rolling||hasRoW(ai))&&!ai.hazard&&!ai.remedied&&
+      ai.hand.some(c=>CARDS[c].type==='distance'&&CARDS[c].km<=kmToTarget&&(ai.speedLimit===0||CARDS[c].km<=50)&&(c!=='d200'||ai.twoHundredCount<2));
+    const hazardWorthPlaying=!canFinishNow;
+    if(hazardWorthPlaying){
+      // Prefer harder-to-fix hazards first (need remedy + roll), save Stop for last (only needs roll)
+      for(const hc of['accident','out_of_gas','flat_tire','stop']){
+        if(!ai.hand.includes(hc)||h.safeties.includes(SAFETY_FOR[hc])) continue;
+        // Deck-empty deduction: if deck is empty and the matching safety is not in discard
+        // and not in AI hand and not already played, it must be in human hand — skip this hazard
+        if(GS.deck.length===0){
+          const saf=SAFETY_FOR[hc];
+          const inDiscard=GS.discard.includes(saf);
+          const inAiHand=ai.hand.includes(saf);
+          const humanPlayed=h.safeties.includes(saf);
+          if(!inDiscard&&!inAiHand&&!humanPlayed) continue; // definitely in human hand
+        }
+        const r=tryPlay('ai',hc);
+        if(r.ok){popMsg=`🚨 ${CARDS[hc].name} on you!`;popType='hazard';ai.hand.splice(ai.hand.indexOf(hc),1);played=true;break;}
+      }
+    }
+  }
+  // ── 9. Speed limit on human — lower priority, play when nothing better available ──
+  // Also apply deck-empty deduction: if Right of Way is unaccounted for, don't bother
+  let rowAccountedFor=GS.discard.includes('right_of_way')||ai.hand.includes('right_of_way')||h.safeties.includes('right_of_way');
+  let humanMustHaveRoW=GS.deck.length===0&&!rowAccountedFor;
+  let canStackSpeedLimit=!played&&h.speedLimit<4&&!h.safeties.includes('right_of_way')&&ai.hand.includes('speed_limit')&&!humanMustHaveRoW;
+  // ── 9b. Play unplayed safeties before winning — safety gives free turn, win is still guaranteed ──
+  if(!played&&(ai.rolling||hasRoW(ai))&&!ai.hazard&&!ai.remedied){
+    const canWin=ai.hand.some(c=>{
+      if(CARDS[c]?.type!=='distance') return false;
+      if(ai.km+CARDS[c].km>GS.target) return false;
+      if(c==='d200'&&ai.twoHundredCount>=2) return false;
+      if(ai.speedLimit>0&&CARDS[c].km>50) return false;
+      return ai.km+CARDS[c].km>=GS.target;
+    });
+    if(canWin){
+      for(const c of [...ai.hand]){
+        if(CARDS[c].type!=='safety'||ai.safeties.includes(c)) continue;
+        const r=tryPlay('ai',c);
+        if(r.ok){
+          ai.hand.splice(ai.hand.indexOf(c),1); played=true;
+          const nm=CARDS[c].name;
+          popMsg=`🛡 ${nm}`;popType='safety';
+          dbg(`AI played safety before winning: ${nm}`);
+          break;
+        }
+      }
+    }
+  }
+  // ── 10. Play best distance card ──
+  if(!played&&(ai.rolling||hasRoW(ai))&&!ai.hazard&&!ai.remedied){
+    const ds=ai.hand.filter(c=>CARDS[c].type==='distance').sort((a,b)=>CARDS[b].km-CARDS[a].km);
+    for(const c of ds){
+      const would200=c==='d200';
+      const winsNow=ai.km+CARDS[c].km>=GS.target; // playing this card wins the round
+      const deckNearlyEmpty=GS.deck.length<20; // only stall for Delayed Action when deck is low
+      const inExtension=GS.target===1000; // never stall in extension — 200km is needed to reach 1000
+      const delayedPossible=!inExtension&&deckNearlyEmpty&&ai.twoHundredCount===0&&(ai.km+CARDS[c].km>=GS.target-200||closeToTarget);
+      if(would200&&delayedPossible&&!winsNow) continue; // skip only if not winning immediately
+      const r=tryPlay('ai',c);
+      if(r.ok){popMsg=`+${CARDS[c].km} km`;popType='distance';ai.hand.splice(ai.hand.indexOf(c),1);played=true;break;}
+    }
+    if(!played){
+      for(const c of ds){
+        const r=tryPlay('ai',c);
+        if(r.ok){popMsg=`+${CARDS[c].km} km`;popType='distance';ai.hand.splice(ai.hand.indexOf(c),1);played=true;break;}
+      }
+    }
+  }
+  // ── 10b. Stack speed limit on human — better than discarding, worse than driving ──
+  if(!played&&canStackSpeedLimit){
+    const r=tryPlay('ai','speed_limit');
+    if(r.ok){popMsg=`⚠ Speed Limit!`;popType='hazard';ai.hand.splice(ai.hand.indexOf('speed_limit'),1);played=true;}
+  }
+  // ── 11. Smarter discard ──
+  if(!played){
+    const w=smartDiscard(ai.hand);
+    ai.hand.splice(ai.hand.indexOf(w),1);GS.discard.push(w);
+    popMsg=`✗ Discarded ${CARDS[w].name}`;popType='discard';
+  }
+
+  if(popMsg) aiPop(popMsg,popType);
+  if(popMsg) dbg(`AI played: ${popMsg} [hand: ${GS.ai.hand.length} cards, AI km: ${GS.ai.km}, Human km: ${GS.human.km}]`);
+
+  // ── 7. Extension decision — runs after distance play so km is current ──
+  if(GS.target===700&&ai.km>=700&&!GS.extensionDeclared){
+    const aiScore=aiScoreEstimate(ai,true,h);
+    const wouldWinGame=GS.totalScores.ai+aiScore+200>=5000;
+    const kmNeededForExt=1000-ai.km;
+    const distInHand=ai.hand.reduce((sum,c)=>sum+(CARDS[c]?.type==='distance'?CARDS[c].km:0),0);
+    const totalDistInDeck=DECK_DEF.filter(([id])=>CARDS[id]?.type==='distance').reduce((sum,[id,total])=>{
+      const inDiscard=GS.discard.filter(c=>c===id).length;
+      const inAiHand=ai.hand.filter(c=>c===id).length;
+      const remaining=Math.max(0,total-inDiscard-inAiHand);
+      return sum+remaining*CARDS[id].km;
+    },0);
+    const deckCards=GS.deck.length;
+    const totalUnaccountedCards=DECK_DEF.reduce((sum,[id,total])=>{
+      const inDiscard=GS.discard.filter(c=>c===id).length;
+      const inAiHand=ai.hand.filter(c=>c===id).length;
+      return sum+Math.max(0,total-inDiscard-inAiHand);
+    },0)-ai.hand.length;
+    const aiDrawFraction=totalUnaccountedCards>0?Math.floor(deckCards/2)/totalUnaccountedCards:0;
+    const expectedDistFromDeck=totalDistInDeck*aiDrawFraction;
+
+    // Extend only if:
+    // 1. Already have enough in hand to win (guaranteed), OR
+    // 2. Have ≥60% in hand AND deck can plausibly cover the rest (2× buffer, 1.5× if it wins the game)
+    const guaranteedWin=distInHand>=kmNeededForExt;
+    const deckBuffer=wouldWinGame?1.5:2.0;
+    const likelyWin=distInHand>=kmNeededForExt*0.6&&
+      expectedDistFromDeck>=(kmNeededForExt-distInHand)*deckBuffer;
+    dbg(`Extension eval: km:${ai.km} needed:${kmNeededForExt} distInHand:${distInHand} expectedFromDeck:${Math.round(expectedDistFromDeck)} guaranteed:${guaranteedWin} likely:${likelyWin}`);
+
+    if(guaranteedWin||likelyWin){
+      GS.target=1000; GS.extensionDeclared=true; GS.extensionCaller='ai';
+      document.getElementById('sc-round').textContent=GS.round;
+      setStatus('AI declares Extension! Race to 1000 km!','warn');
+    }
+    // If not extending, fall through to checkWin which ends the round
+  }
+
+  checkWin();
+  if(GS.roundOver) return;
+  if(GS.deck.length===0&&GS.human.hand.length===0&&GS.ai.hand.length===0){
+    endRound('deck'); return;
+  }
+  render(); endAiTurn();
+}
+
+function smartDiscard(hand){
+  // Pre-compute which distance cards are excess using subset sum
+  // Cards are only useful if they're part of a valid path to exactly kmNeeded
+  // (can't overshoot target — each card must be playable without exceeding 700/1000)
+  const kmNeeded=GS.target-GS.ai.km;
+  const excessDistCards=new Set();
+  {
+    const distInHand=[...GS.ai.hand]
+      .map((h,i)=>({h,i,km:CARDS[h]?.type==='distance'?CARDS[h].km:0}))
+      .filter(x=>x.km>0&&x.km<=kmNeeded)
+      .sort((a,b)=>b.km-a.km);
+
+    // Find the minimum set of cards (by count, preferring larger cards) that sums to <= kmNeeded
+    // Use subset sum: find all subsets that sum to exactly kmNeeded, prefer fewest cards
+    // With at most 7 cards this is fast (2^7 = 128 combinations)
+    let bestSubset=null; // indices into distInHand of cards in best solution
+    let bestSum=0;
+    const n=distInHand.length;
+    for(let mask=1;mask<(1<<n);mask++){
+      let sum=0;
+      const subset=[];
+      for(let b=0;b<n;b++){
+        if(mask&(1<<b)){ sum+=distInHand[b].km; subset.push(b); }
+      }
+      if(sum>kmNeeded) continue; // would overshoot
+      // Prefer: higher sum first, then fewer cards
+      if(sum>bestSum||(sum===bestSum&&bestSubset&&subset.length<bestSubset.length)){
+        bestSum=sum; bestSubset=subset;
+      }
+    }
+    // Mark cards NOT in the best subset as excess
+    if(bestSubset){
+      const usefulIndices=new Set(bestSubset.map(b=>distInHand[b].i));
+      for(const x of distInHand){
+        if(!usefulIndices.has(x.i)) excessDistCards.add(x.i);
+      }
+    } else {
+      // No valid subset — all distance cards score low
+      for(const x of distInHand) excessDistCards.add(x.i);
+    }
+
+    // Also mark 200km cap excess by index
+    let count200=GS.ai.twoHundredCount;
+    for(const x of GS.ai.hand.map((h,i)=>({h,i})).filter(x=>x.h==='d200')){
+      count200++;
+      if(count200>2) excessDistCards.add(x.i);
+    }
+  }
+
+  const deckFrac=GS.deck.length/106;
+
+  const score=(c,idx)=>{
+    const cd=CARDS[c];
+
+    // ── Safeties: almost never discard ──
+    if(cd.type==='safety') return 200;
+
+    // ── Distance cards ──
+    if(cd.type==='distance'){
+      if(cd.km>kmNeeded) return 5; // single card overshoot
+      if(excessDistCards.has(idx)) return 20; // excess copy per greedy fill or 200km cap
+      const base=40+cd.km/5;
+      const earlyPenalty=cd.km<=25?deckFrac*30:cd.km<=50?deckFrac*15:0;
+      // Scale value by deck depletion — early game replacements are abundant so distance cards are less precious
+      const deckScaleMult=0.75+0.25*(1-deckFrac);
+      // Mild discount when AI can't drive right now — cards are still valuable but not immediately playable
+      const notDrivingMult=(!GS.ai.rolling&&!hasRoW(GS.ai))?0.9:1.0;
+      return (base-earlyPenalty)*deckScaleMult*notDrivingMult;
+    }
+
+    // ── Roll ──
+    if(c==='roll'){
+      // Hard cap: never hold more than 2 Rolls regardless of game state
+      const rollsInHand=hand.filter(h=>h==='roll').length;
+      if(rollsInHand>2) return 22; // excess copy
+      // Right of Way played → immune to Stop, Roll is worthless
+      if(GS.ai.safeties.includes('right_of_way')) return 3;
+      if(GS.ai.hazard||GS.ai.remedied) return 90; // need it right now
+      return 70;
+    }
+
+    // ── Hazards ──
+    if(cd.type==='hazard'){
+      const immune=GS.human.safeties.includes(SAFETY_FOR[c]);
+      if(immune) return 3; // useless — opponent immune permanently
+
+      const alreadyHazarded=!!GS.human.hazard;
+      const notRolling=!GS.human.rolling&&!hasRoW(GS.human)&&!alreadyHazarded;
+      const situationMult=alreadyHazarded?0.75:notRolling?0.55:1.0;
+
+      const remedyFactor=aiRemedyDepletionFactor(c);
+      const depletionBonus=(1-remedyFactor)*40;
+
+      // Last-hazard multiplier: if this is the only playable hazard in hand, keep it aggressively.
+      // Severity-weighted: Accident (hardest to remedy) > Flat Tire / Out of Gas > Stop (easiest)
+      // Also partially counteracts the situationMult penalty — even if not immediately playable,
+      // holding your only weapon has strategic value.
+      const playableHazardsInHand=hand.filter(h=>CARDS[h].type==='hazard'&&!GS.human.safeties.includes(SAFETY_FOR[h])).length;
+      const HAZARD_SEVERITY={accident:1.7, flat_tire:1.5, out_of_gas:1.5, stop:1.2};
+      const severityMult=playableHazardsInHand===1?(HAZARD_SEVERITY[c]||1.4):1.0;
+      // When last hazard, use max(situationMult, 0.85) so situation penalty doesn't fully negate the hold value
+      const effectiveSituationMult=playableHazardsInHand===1?Math.max(situationMult,0.85):situationMult;
+
+      if(c==='stop'){
+        const rollsLeft=aiRollsRemaining();
+        const rollFrac=rollsLeft/14;
+        const stopBase=50+((1-rollFrac)*25);
+        const deckBonus=deckFrac*15;
+        return (stopBase+depletionBonus+deckBonus)*effectiveSituationMult*severityMult;
+      }
+
+      const hazardBase=70;
+      const deckBonus=deckFrac*20;
+      return (hazardBase+depletionBonus+deckBonus)*effectiveSituationMult*severityMult;
+    }
+
+    // ── Speed limit ──
+    if(c==='speed_limit'){
+      return(GS.human.speedLimit<4&&!GS.human.safeties.includes('right_of_way'))?55:5;
+    }
+
+    // ── Remedies ──
+    if(cd.type==='remedy'){
+      const matchingHazard=Object.entries(REMEDY_FOR).find(([,rem])=>rem===c)?.[0];
+      if(matchingHazard){
+        const immuneSafety=SAFETY_FOR[matchingHazard];
+        const safetyPlayed=immuneSafety&&GS.ai.safeties.includes(immuneSafety);
+        const safetyInHand=immuneSafety&&hand.includes(immuneSafety);
+        const isImmune=safetyPlayed||safetyInHand;
+
+        // Currently affected by this hazard
+        if(GS.ai.hazard===cd.cures){
+          if(safetyInHand){
+            // Have both remedy and safety in hand while hazarded:
+            // Check if any of this hazard type remain — if none left, play safety (cancels + free turn)
+            const hazardsLeft=aiCardsRemaining(matchingHazard);
+            if(hazardsLeft===0) return 5; // no more threats — play safety instead for free turn
+            // Otherwise play remedy first to get moving, preserve safety for CF
+            return 95;
+          }
+          if(safetyPlayed) return 5; // immune (RoW/safety played) — shouldn't be hazarded but just in case
+          return 95; // need remedy now
+        }
+
+        // Not currently hazarded
+        if(isImmune) return 3; // safety in hand or played — remedy worthless
+
+        // hazardsLeft = unaccounted copies minus any the AI holds (it can't play them on itself)
+        // Exception: Roll is also needed to start driving and resume after any remedy — don't devalue it
+        // just because the AI holds all remaining Stops
+        const hazardsInDeck=aiCardsRemaining(matchingHazard);
+        const hazardsInAiHand=c==='roll'?0:hand.filter(h=>h===matchingHazard).length;
+        const hazardsLeft=Math.max(0,hazardsInDeck-hazardsInAiHand);
+        const remediesInHand=hand.filter(h=>h===c).length;
+        if(hazardsLeft===0) return 3; // hazard type gone or all copies in AI hand — remedy useless
+        if(remediesInHand>hazardsLeft) return 4; // excess copies
+
+        const hazardThreat=hazardsLeft/((DECK_DEF.find(([k])=>k===matchingHazard)?.[1])||1);
+        return 15+hazardThreat*45+deckFrac*10;
+      }
+      return 15+deckFrac*15;
+    }
+
+    if(cd.type==='end_limit'){
+      if(GS.ai.speedLimit>0) return 80; // need it right now
+      // RoW played OR in hand → immune to speed limits, End of Limit is worthless
+      if(GS.ai.safeties.includes('right_of_way')||hand.includes('right_of_way')) return 3;
+      const slInDeck=aiCardsRemaining('speed_limit');
+      const slInAiHand=hand.filter(h=>h==='speed_limit').length;
+      const slRemaining=Math.max(0,slInDeck-slInAiHand);
+      const eolInHand=hand.filter(h=>h==='end_limit').length;
+      if(slRemaining===0) return 3;
+      if(eolInHand>slRemaining) return 4;
+      return 25+deckFrac*15;
+    }
+
+    return 10;
+  };
+
+  const scored=hand.map((c,i)=>({c,i,s:score(c,i)})).sort((a,b)=>a.s-b.s);
+  const chosen=scored[0].c;
+  dbg(`AI discard scores: ${scored.map(x=>`${CARDS[x.c].name}=${Math.round(x.s)}`).join(', ')} → chose ${CARDS[chosen].name}`);
+  return chosen;
+}
+
+// ══════════════════════════════════════════
+// TRACKER WIDGET (MB-29)
+// ══════════════════════════════════════════
+// Pair definitions: [hazardId, remedyId, trackScale]
+// trackScale = max(hazard total, remedy total) for that pair
+const TRACKER_PAIRS=[
+  {haz:'stop',       rem:'roll',       scale:14, hazColor:'#d42b2b'},
+  {haz:'accident',   rem:'repairs',    scale:6,  hazColor:'#d42b2b'},
+  {haz:'out_of_gas', rem:'gasoline',   scale:6,  hazColor:'#d42b2b'},
+  {haz:'flat_tire',  rem:'spare_tire', scale:6,  hazColor:'#d42b2b'},
+  {haz:'speed_limit',rem:'end_limit',  scale:6,  hazColor:'#e8a020'},
+];
+const DIST_IDS=['d25','d50','d75','d100','d200'];
+const SAF_IDS=['right_of_way','driving_ace','fuel_tank','puncture_proof'];
+
+let trackerPinned=false;
+let trackerHoverTimeout=null;
+
+function trackerRemaining(cardId){
+  const total=DECK_DEF.find(([k])=>k===cardId)?.[1]||0;
+  const inDiscard=GS.discard.filter(c=>c===cardId).length;
+  const inHand=GS.human.hand.filter(c=>c===cardId).length;
+  return{remaining:total-inDiscard-inHand, total, inHand};
+}
+
+function renderTracker(){
+  if(!GS||!GS.discard) return;
+
+  // ── Compact pairs ──
+  const pairKeys={stop:'tcp-stop',accident:'tcp-acc',out_of_gas:'tcp-gas',flat_tire:'tcp-flat',speed_limit:'tcp-speed'};
+  for(const pr of TRACKER_PAIRS){
+    const hd=trackerRemaining(pr.haz);
+    const rd=trackerRemaining(pr.rem);
+    const hn=document.getElementById('tcn-'+pr.haz);
+    const rn=document.getElementById('tcn-'+pr.rem);
+    if(hn){ hn.textContent=hd.remaining; hn.className='tc-hnum'+(hd.remaining>rd.remaining?' danger':''); }
+    if(rn) rn.textContent=rd.remaining;
+    const row=document.getElementById(pairKeys[pr.haz]||'tcp-'+pr.haz);
+    if(row) row.classList.toggle('zeroed', hd.remaining===0);
+  }
+
+  // ── Compact safeties column (removed) ──
+  for(const pr of TRACKER_PAIRS){
+    const hd=trackerRemaining(pr.haz);
+    const rd=trackerRemaining(pr.rem);
+    const hazPct=(hd.remaining/pr.scale*100).toFixed(1)+'%';
+    const remPct=(rd.remaining/pr.scale*100).toFixed(1)+'%';
+    const danger=hd.remaining>rd.remaining;
+    const zeroed=hd.remaining===0;
+
+    const rowEl=document.getElementById('ter-'+pr.haz);
+    if(rowEl) rowEl.classList.toggle('zeroed',zeroed);
+
+    const hazBar=document.getElementById('teb-haz-'+pr.haz);
+    if(hazBar){ hazBar.style.width=hazPct; hazBar.style.background=danger?'#ff4444':pr.hazColor; }
+    const remBar=document.getElementById('teb-rem-'+pr.haz);
+    if(remBar) remBar.style.width=remPct;
+
+    const hazCount=document.getElementById('tec-haz-'+pr.haz);
+    if(hazCount){ hazCount.textContent=hd.remaining+'/'+hd.total; hazCount.style.color=zeroed?'rgba(255,255,255,0.2)':danger?'#ff4444':pr.hazColor==='#e8a020'?'#e8a020':'#ff8080'; }
+    const remCount=document.getElementById('tec-rem-'+pr.haz);
+    if(remCount) remCount.textContent=rd.remaining+'/'+rd.total;
+
+    const pip=document.getElementById('tep-'+pr.haz);
+    if(pip){ pip.className=danger?'te-pip':'te-nopip'; }
+  }
+
+  // ── Expanded distance bars ──
+  for(const did of DIST_IDS){
+    const d=trackerRemaining(did);
+    const pct=(d.remaining/d.total*100).toFixed(1)+'%';
+    const fill=document.getElementById('tdf-'+did);
+    if(fill) fill.style.width=pct;
+    const num=document.getElementById('tdn-'+did);
+    if(num) num.textContent=d.remaining+'/'+d.total;
+  }
+
+  // ── Expanded safeties ──
+  for(const sid of SAF_IDS){
+    const chip=document.getElementById('tsc-'+sid);
+    const lbl=document.getElementById('tss-'+sid);
+    if(!chip||!lbl) continue;
+    const inHumanHand=GS.human.hand.includes(sid);
+    const humanPlayed=GS.human.safeties.includes(sid);
+    const humanCF=GS.human.coupFourre.includes(sid);
+    const aiPlayed=GS.ai.safeties.includes(sid);
+    const aiCF=GS.ai.coupFourre.includes(sid);
+    const discarded=GS.discard.includes(sid)&&!humanPlayed&&!aiPlayed;
+    chip.className='te-saf-chip';
+    if(humanCF||aiCF){ chip.classList.add('played-cf'); lbl.textContent=(humanCF?'you CF':'AI CF'); }
+    else if(humanPlayed){ chip.classList.add('played'); lbl.textContent='you played'; }
+    else if(aiPlayed){ chip.classList.add('played'); lbl.textContent='AI played'; }
+    else if(inHumanHand){ chip.classList.add('in-hand'); lbl.textContent='in your hand'; }
+    else if(discarded){ chip.classList.add('discarded'); lbl.textContent='discarded'; }
+    else{ chip.classList.add('unknown'); lbl.textContent='in deck'; }
+  }
+}
+
+function trackerShow(){
+  clearTimeout(trackerHoverTimeout);
+  document.getElementById('tracker-expanded').classList.add('show');
+  renderTracker();
+}
+function trackerHide(){
+  if(trackerPinned) return;
+  trackerHoverTimeout=setTimeout(()=>{
+    document.getElementById('tracker-expanded').classList.remove('show');
+  },120);
+}
+function trackerTogglePin(){
+  trackerPinned=!trackerPinned;
+  document.getElementById('tracker-compact').classList.toggle('pinned',trackerPinned);
+  document.getElementById('tc-pin-hint').textContent=trackerPinned?'pinned — click to unpin':'click to pin';
+  if(trackerPinned){ trackerShow(); } else { document.getElementById('tracker-expanded').classList.remove('show'); }
+}
+
+function aiPop(msg,type){
+  const el=document.getElementById('ai-popup');
+  const div=document.createElement('div');
+  div.className=`ai-pop-msg ${type}`;
+  div.textContent=msg;
+  el.innerHTML=''; el.appendChild(div);
+  setTimeout(()=>{ if(el.contains(div)) el.removeChild(div); },1800);
+}
+
+// ══════════════════════════════════════════
+// WIN / SCORE
+// ══════════════════════════════════════════
+function checkWin(){
+  if(GS.roundOver) return;
+  if(GS.human.km>=GS.target){endRound('human');return;}
+  if(GS.ai.km>=GS.target){endRound('ai');return;}
+  // MB-20: Auto-finish when deck is empty and neither player has any legal play
+  if(GS.deck.length===0&&!hasAnyLegalPlay('human')&&!hasAnyLegalPlay('ai')){
+    dbg('MB-20: No legal plays remain for either player — ending round','dev');
+    endRound('deck');
+  }
+}
+
+function hasAnyLegalPlay(who){
+  const p=GS[who], opp=who==='human'?GS.ai:GS.human;
+  for(const cid of p.hand){
+    const cd=CARDS[cid];
+    if(cd.type==='distance'){
+      if((p.rolling||hasRoW(p))&&!p.hazard&&!p.remedied&&(p.speedLimit===0||cd.km<=50)&&(p.km+cd.km<=GS.target)) return true;
+    } else if(cd.type==='hazard'){
+      if(!opp.hazard&&(opp.rolling||hasRoW(opp))&&!opp.safeties.includes(SAFETY_FOR[cid])) return true;
+    } else if(cd.type==='speed_limit'){
+      if(opp.speedLimit<4&&!opp.safeties.includes('right_of_way')) return true;
+    } else if(cd.type==='remedy'){
+      if(cid==='roll'){if((!p.rolling||p.remedied)&&(!p.hazard||p.hazard==='stop')) return true;}
+      else if(p.hazard===cd.cures) return true;
+    } else if(cd.type==='end_limit'){
+      if(p.speedLimit>0) return true;
+    } else if(cd.type==='safety'){
+      if(!p.safeties.includes(cid)) return true;
+    }
+  }
+  return false;
+}
+
+function endRound(reason){
+  GS.roundOver=true;
+  let w;
+  if(reason==='human') w='human';
+  else if(reason==='ai') w='ai';
+  else if(GS.human.km>GS.ai.km) w='human';
+  else if(GS.ai.km>GS.human.km) w='ai';
+  else {
+    // Tiebreaker: use total round score (safeties, CFs etc.) when km is equal
+    const hScore=GS.human.safeties.length*100+GS.human.coupFourre.length*300+(GS.human.safeties.length===4?300:0);
+    const aScore=GS.ai.safeties.length*100+GS.ai.coupFourre.length*300+(GS.ai.safeties.length===4?300:0);
+    w=hScore>aScore?'human':aScore>hScore?'ai':null;
+  }
+  const sc=calcScores(w);
+  GS.totalScores.human+=sc.human.total;
+  GS.totalScores.ai+=sc.ai.total;
+  document.getElementById('sc-human').textContent=GS.totalScores.human;
+  document.getElementById('sc-ai').textContent=GS.totalScores.ai;
+  GS.round++;
+  dbg(`Round ended — winner: ${w||'tie'}, Human score: ${sc.human.total}, AI score: ${sc.ai.total}`);
+  render();
+  showScoreModal(sc,w); // pushes to GS.scoreHistory
+  saveGameState(); // save AFTER history is recorded so refresh shows correct scorecard
+}
+
+// All scoring categories in display order
+const SCORE_CATS=[
+  {key:'dist',    label:'Distance driven'},
+  {key:'safe',    label:'Safeties (×100 each)'},
+  {key:'cf',      label:'Coup-Fourré (×300 each)'},
+  {key:'all4',    label:'All 4 Safeties bonus'},
+  {key:'trip',    label:'Trip Complete'},
+  {key:'delayed', label:'Delayed Action (deck emptied)'},
+  {key:'safetrip',label:'Safe Trip (no 200 km cards)'},
+  {key:'shutout', label:'Shutout (opponent 0 km)'},
+  {key:'extbonus',label:'Extension bonus'},
+];
+
+function calcScores(winner){
+  const build=(p,opp,win,who)=>{
+    const vals={};
+    vals.dist=p.km;
+    vals.safe=p.safeties.length*100;
+    vals.cf=p.coupFourre.length*300;
+    vals.all4=p.safeties.length===4?300:0;
+    vals.trip=(win&&p.km>=GS.target)?400:0;
+    // Delayed Action: winner completed trip AND draw pile was exhausted during the round
+    vals.delayed=(win&&p.km>=GS.target&&GS.deckEmptied)?300:0;
+    // Safe Trip: winner completed trip without playing any 200 km cards
+    vals.safetrip=(win&&p.km>=GS.target&&p.twoHundredCount===0)?300:0;
+    // Shutout: must complete the FULL trip (reach target km) before opponent plays any distance
+    vals.shutout=(win&&p.km>=GS.target&&opp.km===0)?500:0;
+    // Extension bonus (200pts): caller gets it if they reach target, opponent gets it if caller fails
+    // "Caller fails" = caller did not reach target (regardless of who won on points)
+    if(GS.extensionDeclared){
+      const isCaller=(who==='human'&&GS.extensionCaller==='human')||(who==='ai'&&GS.extensionCaller==='ai');
+      const callerReachedTarget=(GS.extensionCaller==='human'?GS.human.km:GS.ai.km)>=GS.target;
+      if(isCaller&&callerReachedTarget) vals.extbonus=200; // caller succeeded
+      else if(!isCaller&&!callerReachedTarget) vals.extbonus=200; // opponent of caller gets it when caller fails
+      else vals.extbonus=0;
+    } else {
+      vals.extbonus=0;
+    }
+    const total=Object.values(vals).reduce((a,b)=>a+b,0);
+    return{vals,total};
+  };
+  return{human:build(GS.human,GS.ai,winner==='human','human'),ai:build(GS.ai,GS.human,winner==='ai','ai')};
+}
+
+function scoreTableRows(sc,includeRunning,hideZeros=false){
+  let rows=`<tr><th>Category</th><th>You</th><th>AI</th></tr>`;
+  for(const cat of SCORE_CATS){
+    const hv=sc.human.vals[cat.key], av=sc.ai.vals[cat.key];
+    if(hideZeros&&hv===0&&av===0&&cat.key!=='dist') continue;
+    const hDisp=hv===0?'—':hv, aDisp=av===0?'—':av;
+    rows+=`<tr><td>${cat.label}</td><td>${hDisp}</td><td>${aDisp}</td></tr>`;
+  }
+  const hw=sc.human.total>sc.ai.total,aw=sc.ai.total>sc.human.total;
+  rows+=`<tr class="tot"><td>Round Total</td><td class="${hw?'win-cell':'lose-cell'}">${sc.human.total}</td><td class="${aw?'win-cell':'lose-cell'}">${sc.ai.total}</td></tr>`;
+  if(includeRunning){
+    const thw=GS.totalScores.human>GS.totalScores.ai,taw=GS.totalScores.ai>GS.totalScores.human;
+    rows+=`<tr class="tot"><td>Running Total</td><td class="${thw?'win-cell':'lose-cell'}">${GS.totalScores.human}</td><td class="${taw?'win-cell':'lose-cell'}">${GS.totalScores.ai}</td></tr>`;
+  }
+  return rows;
+}
+
+function showScoreModal(sc,winner){
+  // Record in history
+  GS.scoreHistory.push({round:GS.round-1,sc,winner,totalH:GS.totalScores.human,totalA:GS.totalScores.ai});
+  const rows=scoreTableRows(sc,true);
+  if(GS.totalScores.human>=5000||GS.totalScores.ai>=5000){
+    const humanWon=GS.totalScores.human>=5000;
+    // Record result in profile
+    const roundScores=GS.scoreHistory.map(h=>h.sc.human.total);
+    recordGameResult(humanWon, roundScores, GS.totalScores.human);
+    clearGameState(); // game is over, no need to save state
+    const gtitle=humanWon?'🏆 You Win the Game!':'🤖 AI Wins the Game!';
+    document.getElementById('game-modal-title').textContent=gtitle;
+
+    // Build full game recap
+    let recap='';
+    // Final score banner
+    const thw=GS.totalScores.human>GS.totalScores.ai;
+    recap+=`<div style="display:flex;gap:12px;justify-content:center;margin-bottom:16px;">
+      <div style="text-align:center;padding:12px 20px;background:${thw?'rgba(140,198,63,0.15)':'rgba(0,0,0,0.15)'};border:2px solid ${thw?'var(--lime)':'rgba(255,255,255,0.1)'};border-radius:8px;">
+        <div style="font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gray);margin-bottom:4px">You</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:${thw?'var(--lime)':'var(--ink)'}">${GS.totalScores.human}</div>
+      </div>
+      <div style="text-align:center;padding:12px 20px;background:${!thw?'rgba(212,43,43,0.15)':'rgba(0,0,0,0.15)'};border:2px solid ${!thw?'var(--red)':'rgba(255,255,255,0.1)'};border-radius:8px;">
+        <div style="font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gray);margin-bottom:4px">AI</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:${!thw?'#ff8080':'var(--ink)'}">${GS.totalScores.ai}</div>
+      </div>
+    </div>`;
+
+    // Round by round summary
+    recap+=`<div style="font-size:0.58rem;font-weight:800;letter-spacing:0.15em;text-transform:uppercase;color:var(--gray);margin-bottom:6px">Round Breakdown</div>`;
+    recap+=`<table class="score-tbl" style="margin-bottom:14px"><tr><th>Round</th><th>Winner</th><th>You</th><th>AI</th><th>Running</th></tr>`;
+    for(const h of GS.scoreHistory){
+      const wlbl=h.winner==='human'?'🏁 You':h.winner==='ai'?'🤖 AI':'Tie';
+      recap+=`<tr>
+        <td>${h.round}</td>
+        <td>${wlbl}</td>
+        <td class="${h.winner==='human'?'win-cell':''}">${h.sc.human.total}</td>
+        <td class="${h.winner==='ai'?'win-cell':''}">${h.sc.ai.total}</td>
+        <td style="font-size:0.68rem;color:var(--gray)">${h.totalH} – ${h.totalA}</td>
+      </tr>`;
+    }
+    recap+=`</table>`;
+
+    // Final round detail
+    recap+=`<div style="font-size:0.58rem;font-weight:800;letter-spacing:0.15em;text-transform:uppercase;color:var(--gray);margin-bottom:6px">Final Round Detail</div>`;
+    recap+=`<table class="score-tbl">${scoreTableRows(sc,false)}</table>`;
+
+    document.getElementById('game-recap').innerHTML=recap;
+    document.getElementById('game-modal').classList.add('show');
+  } else {
+    const rtitle=winner==='human'?'🏁 You Win the Round!':winner==='ai'?'AI Wins the Round':winner===null?'Round Over — Tie':'Round Over';
+    document.getElementById('round-modal-title').textContent=rtitle;
+    document.getElementById('round-score-tbl').innerHTML=rows;
+    document.getElementById('round-modal').classList.add('show');
+  }
+}
+
+function showLiveScore(){
+  const el=document.getElementById('live-score-content');
+  if(GS.scoreHistory.length===0){
+    el.innerHTML=`<p style="text-align:center;color:var(--gray);font-size:0.78rem;padding:16px">No completed rounds yet.</p>`;
+  } else {
+    let html='';
+    for(const h of [...GS.scoreHistory].reverse()){
+      const wlbl=h.winner==='human'?'🏁 You won':'🤖 AI won';
+      html+=`<div style="margin-bottom:12px"><div style="font-size:0.62rem;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:var(--gray);margin-bottom:4px">Round ${h.round} — ${wlbl}</div>`;
+      html+=`<table class="score-tbl">${scoreTableRows(h.sc,false,true)}</table></div>`;
+    }
+    // Running total
+    const thw=GS.totalScores.human>GS.totalScores.ai;
+    html+=`<table class="score-tbl"><tr class="tot"><td>Running Total</td><td class="${thw?'win-cell':'lose-cell'}">${GS.totalScores.human}</td><td class="${!thw&&GS.totalScores.ai>GS.totalScores.human?'win-cell':'lose-cell'}">${GS.totalScores.ai}</td></tr></table>`;
+    el.innerHTML=html;
+  }
+  document.getElementById('live-score-modal').classList.add('show');
+}
+
+function closeModal(id){ document.getElementById(id).classList.remove('show'); }
+function nextRound(){ closeModal('round-modal'); startRound(); }
+function newGame(){
+  ['round-modal','game-modal','live-score-modal','delete-profile-modal'].forEach(id=>closeModal(id));
+  GS.round=1; GS.totalScores={human:0,ai:0}; GS.scoreHistory=[];
+  document.getElementById('sc-human').textContent='0';
+  document.getElementById('sc-ai').textContent='0';
+  clearGameState();
+  startRound();
+}
+
+// ══════════════════════════════════════════
+// DRAG & DROP
+// ══════════════════════════════════════════
+let dragIdx=null;
+function onDragStart(e,i){
+  dragIdx=i;e.dataTransfer.effectAllowed='move';
+  setTimeout(()=>e.target.classList.add('drag-ghost'),0);
+  highlightDropTargets(i);
+}
+function onDragEnd(e){e.target.classList.remove('drag-ghost');dragIdx=null;discardDragCount=0;clearDropHighlights();}
+function dropDiscard(e){
+  e.preventDefault(); discardDragCount=0; highlightDiscard(false);
+  if(dragIdx===null||GS.turn!=='human'||GS.roundOver) return;
+  if(!GS.human.drawnThisTurn){setStatus('Draw a card first!','warn');return;}
+  doDiscard(dragIdx);
+}
+function dropPlay(e){
+  e.preventDefault();
+  if(dragIdx===null||GS.turn!=='human'||GS.roundOver) return;
+  const cid=GS.human.hand[dragIdx];
+  const isCFDrag=GS.cfPending&&cid===GS.cfPending.safetyId;
+  if(!GS.human.drawnThisTurn&&!isCFDrag){setStatus('Draw a card first!','warn');return;}
+  GS.selected=dragIdx;playSelected();
+}
+function dropPlayOnAI(e){
+  e.preventDefault();
+  if(dragIdx===null||GS.turn!=='human'||GS.roundOver) return;
+  const cid=GS.human.hand[dragIdx];
+  const isCFDrag=GS.cfPending&&cid===GS.cfPending.safetyId;
+  if(!GS.human.drawnThisTurn&&!isCFDrag){setStatus('Draw a card first!','warn');return;}
+  GS.selected=dragIdx;playSelected();
+}
+function highlightDiscard(on){
+  const el=document.getElementById('discard-area');
+  if(on) el.classList.add('drop-valid-discard');
+  else el.classList.remove('drop-valid-discard','drop-hover');
+}
+let discardDragCount=0;
+function onDiscardEnter(e){ discardDragCount++; highlightDiscard(true); }
+function onDiscardLeave(e){ discardDragCount--; if(discardDragCount<=0){discardDragCount=0;highlightDiscard(false);} }
+function askNewGame(){
+  const anyPlay=GS.human.km>0||GS.ai.km>0||GS.discard.length>0||GS.round>1;
+  if(anyPlay) document.getElementById('confirm-modal').classList.add('show');
+  else confirmNewGame();
+}
+function confirmNewGame(){ closeModal('confirm-modal'); newGame(); }
+
+function highlightDropTargets(idx){
+  clearDropHighlights();
+  if(idx===null||idx===undefined) return;
+  const cid=GS.human.hand[idx];
+  if(!cid) return;
+  const cd=CARDS[cid];
+  const p=GS.human; const opp=GS.ai;
+
+  // Discard is valid unless this card is a pending CF — you shouldn't discard your counter
+  const isCFSelected=GS.cfPending&&cid===GS.cfPending.safetyId;
+  if(!isCFSelected) document.getElementById('discard-area').classList.add('drop-valid-discard');
+
+  // Check if play is actually valid before highlighting play zone
+  let playValid=false;
+  if(cd.type==='distance'){
+    playValid=(p.rolling||hasRoW(p))&&!p.hazard&&!p.remedied&&(p.speedLimit?cd.km<=50:true)&&(p.km+cd.km<=GS.target);
+    if(playValid) document.getElementById('human-battle').classList.add('drop-valid'); // green
+  } else if(cd.type==='hazard'){
+    playValid=!opp.hazard&&(opp.rolling||hasRoW(opp))&&!opp.safeties.includes(SAFETY_FOR[cid]);
+    if(playValid) document.getElementById('ai-battle').classList.add('drop-valid-play'); // red
+  } else if(cd.type==='speed_limit'){
+    playValid=opp.speedLimit<4&&!opp.safeties.includes('right_of_way');
+    if(playValid) document.getElementById('ai-battle').classList.add('drop-valid-play');
+  } else if(cd.type==='remedy'){
+    if(cid==='roll') playValid=(!p.rolling||p.remedied)&&(!p.hazard||p.hazard==='stop');
+    else playValid=p.hazard===cd.cures;
+    if(playValid) document.getElementById('human-battle').classList.add('drop-valid');
+  } else if(cd.type==='end_limit'){
+    playValid=p.speedLimit>0;
+    if(playValid) document.getElementById('human-battle').classList.add('drop-valid');
+  } else if(cd.type==='safety'){
+    playValid=!p.safeties.includes(cid);
+    if(playValid) document.getElementById('human-battle').classList.add('drop-valid');
+  }
+}
+function clearDropHighlights(){
+  document.querySelectorAll('.drop-valid,.drop-valid-play,.drop-valid-discard,.drop-hover')
+    .forEach(e=>e.classList.remove('drop-valid','drop-valid-play','drop-valid-discard','drop-hover'));
+}
+
+// ══════════════════════════════════════════
+// CF OVERLAY
+// ══════════════════════════════════════════
+function showCF(msg){
+  document.getElementById('cf-subtitle').textContent=msg;
+  const ov=document.getElementById('cf-overlay');
+  ov.classList.add('show');
+  setTimeout(()=>ov.classList.remove('show'),2000);
+}
+
+// ══════════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════════
+function makeCard(cid,extra='',attrs=''){
+  const cd=CARDS[cid];
+  const art=ART[cid]||`<svg viewBox="0 0 70 80"><rect width="70" height="80" fill="#eee"/><text x="35" y="45" text-anchor="middle" font-size="20">?</text></svg>`;
+  const col=TYPE_COLORS[cd.type]||'#888';
+  const topText=cd.type==='distance'?`${cd.km} km`:cd.name;
+  const botText=cd.sub;
+  return `<div class="card ${cd.type} ${extra}" ${attrs}>
+    <div class="card-top-band" style="background:${col}"><span>${topText}</span></div>
+    <div class="card-art">${art}</div>
+    <div class="card-bot-band" style="background:${col}"><span>${botText}</span></div>
+  </div>`;
+}
+
+function emptySlot(lbl){
+  return `<div class="card empty-slot"><div class="card-art" style="flex-direction:column;gap:4px">
+    <svg viewBox="0 0 40 40" width="30" height="30"><circle cx="20" cy="20" r="15" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="2" stroke-dasharray="4 3"/></svg>
+    <span style="font-size:0.5rem;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:0.1em">${lbl}</span>
+  </div></div>`;
+}
+
+// Type sort order: safeties first, then distance (desc), then remedies, then hazards, then speed limits
+const TYPE_SORT_ORDER={safety:0,distance:1,remedy:2,end_limit:3,hazard:4,speed_limit:5};
+
+function setSort(mode){
+  handSort=mode;
+  document.getElementById('btn-sort-type').classList.toggle('active',handSort==='type');
+  document.getElementById('btn-sort-play').classList.toggle('active',handSort==='playable');
+  document.getElementById('btn-sort-none').classList.toggle('active',handSort==='none');
+  render();
+}
+
+function sortedHandIndices(){
+  const indices=GS.human.hand.map((_,i)=>i);
+  if(handSort==='none') return indices;
+  if(handSort==='type'){
+    return indices.sort((a,b)=>{
+      const ca=CARDS[GS.human.hand[a]], cb=CARDS[GS.human.hand[b]];
+      const ta=TYPE_SORT_ORDER[ca.type]??9, tb=TYPE_SORT_ORDER[cb.type]??9;
+      if(ta!==tb) return ta-tb;
+      // Within distance, sort descending by km
+      if(ca.type==='distance') return cb.km-ca.km;
+      return 0;
+    });
+  }
+  if(handSort==='playable'){
+    // Determine playability for each card
+    const canPlay=i=>{
+      const cid=GS.human.hand[i];
+      const cd=CARDS[cid];
+      const p=GS.human, opp=GS.ai;
+      if(cd.type==='distance') return (p.rolling||hasRoW(p))&&!p.hazard&&!p.remedied&&(p.speedLimit>0?cd.km<=50:true)&&(p.km+cd.km<=GS.target);
+      if(cd.type==='hazard') return !opp.hazard&&(opp.rolling||hasRoW(opp))&&!opp.safeties.includes(SAFETY_FOR[cid]);
+      if(cd.type==='speed_limit') return opp.speedLimit<4&&!opp.safeties.includes('right_of_way');
+      if(cd.type==='remedy'){
+        if(cid==='roll') return (!p.rolling||p.remedied)&&(!p.hazard||p.hazard==='stop');
+        return p.hazard===cd.cures;
+      }
+      if(cd.type==='end_limit') return p.speedLimit>0;
+      if(cd.type==='safety') return !p.safeties.includes(cid);
+      return false;
+    };
+    return indices.sort((a,b)=>{
+      const ca=CARDS[GS.human.hand[a]], cb=CARDS[GS.human.hand[b]];
+      const playA=canPlay(a), playB=canPlay(b);
+      const safeA=ca.type==='safety', safeB=cb.type==='safety';
+      // Group order: playable non-safety (0), playable safety (1), unplayable (2)
+      const groupA=!playA?2:safeA?1:0;
+      const groupB=!playB?2:safeB?1:0;
+      if(groupA!==groupB) return groupA-groupB;
+      // Within each group, sort by type order
+      return (TYPE_SORT_ORDER[ca.type]??9)-(TYPE_SORT_ORDER[cb.type]??9);
+    });
+  }
+  return indices;
+}
+
+function render(){
+  renderArea('ai'); renderArea('human');
+
+  // KM badges
+  document.getElementById('human-km').textContent=`${GS.human.km} / ${GS.target} km`;
+  document.getElementById('ai-km').textContent=`${GS.ai.km} / ${GS.target} km`;
+  document.getElementById('human-spd').style.display=GS.human.speedLimit>0?'inline':'none';
+  document.getElementById('ai-spd').style.display=GS.ai.speedLimit>0?'inline':'none';
+  if(GS.human.speedLimit>1) document.getElementById('human-spd').textContent=`⚠ 50 km limit (×${GS.human.speedLimit})`;
+  else document.getElementById('human-spd').textContent='⚠ 50 km limit';
+  if(GS.ai.speedLimit>1) document.getElementById('ai-spd').textContent=`⚠ 50 km limit (×${GS.ai.speedLimit})`;
+  else document.getElementById('ai-spd').textContent='⚠ 50 km limit';
+
+  // Turn badges
+  const hb=document.getElementById('human-badge'),ab=document.getElementById('ai-badge');
+  const wasHumanTurn=hb.className.includes('yours');
+  const wasAiTurn=ab.className.includes('think');
+  if(GS.turn==='human'){
+    hb.textContent='Your Turn';hb.className='tbadge yours';
+    ab.textContent='Waiting';ab.className='tbadge wait';
+    if(!wasHumanTurn){ hb.classList.add('pop'); setTimeout(()=>hb.classList.remove('pop'),400); }
+  } else {
+    hb.textContent='Waiting';hb.className='tbadge wait';
+    ab.textContent='Thinking…';ab.className='tbadge think';
+    if(!wasAiTurn){ ab.classList.add('pop'); setTimeout(()=>ab.classList.remove('pop'),400); }
+  }
+
+  // Draw pile visual — show empty state when deck exhausted, AI turn state when not your turn
+  const drawBtn=document.getElementById('draw-btn');
+  if(GS.deck.length===0){
+    drawBtn.style.background='transparent';
+    drawBtn.style.border='2px dashed rgba(255,255,255,0.2)';
+    drawBtn.innerHTML='<span style="font-size:0.55rem;color:rgba(255,255,255,0.3);letter-spacing:0.1em;text-transform:uppercase;">Empty</span>';
+    drawBtn.style.cursor='default';
+  } else if(GS.turn==='ai'&&!GS.roundOver){
+    drawBtn.style.background='rgba(0,0,0,0.35)';
+    drawBtn.style.border='2px solid rgba(255,255,255,0.08)';
+    drawBtn.innerHTML=`<span style="font-family:'Bebas Neue',sans-serif;font-size:0.75rem;letter-spacing:0.12em;color:rgba(255,255,255,0.3);text-align:center;line-height:1.3;">AI<br>TURN</span><span style="font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:rgba(255,255,255,0.2);line-height:1;">${GS.deck.length}</span>`;
+    drawBtn.style.cursor='default';
+  } else {
+    drawBtn.style.background='';
+    drawBtn.style.border='';
+    drawBtn.innerHTML=`<span class="draw-label">DRAW</span><span style="font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:var(--lime);line-height:1;">${GS.deck.length}</span>`;
+    drawBtn.style.cursor='pointer';
+  }
+
+  // Score tile winning highlight
+  const humanWinning=GS.totalScores.human>=GS.totalScores.ai;
+  document.getElementById('score-tile-human').classList.toggle('st-winning',humanWinning);
+  document.getElementById('score-tile-ai').classList.toggle('st-winning',!humanWinning);
+
+  // Discard fan
+  renderDiscardFan();
+
+  // Draw pile pulse — also pulse if deck empty but not drawn yet (player needs to "skip draw")
+  if(GS.turn==='human'&&!GS.human.drawnThisTurn&&!GS.roundOver&&!GS.extensionPending)
+    drawBtn.classList.add('your-turn-pulse');
+  else
+    drawBtn.classList.remove('your-turn-pulse');
+
+  // Buttons
+  const canAct=GS.turn==='human'&&!GS.roundOver&&GS.human.drawnThisTurn;
+  document.getElementById('btn-play').disabled=GS.selected===null||(!canAct&&!(GS.cfPending&&GS.selected!==null&&GS.human.hand[GS.selected]===GS.cfPending.safetyId));
+  document.getElementById('btn-discard').disabled=GS.selected===null||!canAct;
+  // Extension pending state handled by renderArea injecting ext-card into battle row
+
+  // Highlight drop targets if card selected
+  if(GS.selected!==null) highlightDropTargets(GS.selected);
+  else clearDropHighlights();
+
+  // Live tracker update
+  renderTracker();
+}
+
+function renderDiscardFan(){
+  const empty=document.getElementById('discard-empty');
+  const fan=document.getElementById('discard-fan');
+  if(GS.discard.length===0){empty.style.display='flex';fan.style.display='none';return;}
+  empty.style.display='none'; fan.style.display='block';
+  const show=GS.discard.slice(-3);
+  fan.innerHTML=show.map((cid)=>{
+    const cd=CARDS[cid]; const art=ART[cid]||'';
+    const col=TYPE_COLORS[cd.type]||'#888';
+    const topText=cd.type==='distance'?`${cd.km} km`:cd.name;
+    return `<div class="fan-card">
+      <div style="width:100%;height:14px;background:${col};flex-shrink:0;display:flex;align-items:center;justify-content:center;">
+        <span style="font-size:0.45rem;font-weight:800;color:white;letter-spacing:0.05em;text-transform:uppercase;">${topText}</span>
+      </div>
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:2px">
+        <div style="width:52px;height:52px">${art}</div>
+      </div>
+      <div style="width:100%;height:13px;background:${col};flex-shrink:0;display:flex;align-items:center;justify-content:center;">
+        <span style="font-size:0.42rem;font-weight:800;color:white;letter-spacing:0.06em;text-transform:uppercase;">${cd.sub}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderArea(who){
+  const p=GS[who];
+  const SAFETY_DEFS=[
+    {id:'driving_ace',   label:'Driving Ace',   protects:'accident'},
+    {id:'fuel_tank',     label:'Extra Tank',     protects:'out_of_gas'},
+    {id:'puncture_proof',label:'Puncture-Proof', protects:'flat_tire'},
+    {id:'right_of_way',  label:'Right of Way',   protects:'stop'},
+  ];
+
+  // Battle row: drive pile + speed pile + safety tiles + distance pile
+  const bel=document.getElementById(`${who}-battle`);
+  const isAI=who==='ai';
+  let bh='';
+
+  // Drive pile
+  if(isAI){
+    bh+=`<div class="zone">`;
+    if(p.hazard) bh+=makeCard(p.hazard);
+    else if(p.remedied) bh+=`<div class="card remedy" style="outline:2px solid #e8a020">
+      <div class="card-top-band" style="background:#2a8a40"><span>Needs Roll!</span></div>
+      <div class="card-art"><div style="text-align:center;padding:8px;font-size:0.7rem;font-weight:700;color:#e8a020">▶ Play<br>Roll!</div></div>
+      <div class="card-bot-band" style="background:#e8a020"><span>Remedy</span></div>
+    </div>`;
+    else if(p.rolling) bh+=makeCard('roll');
+    else bh+=emptySlot('No Light');
+    bh+=`<div class="zlbl">Drive Pile</div></div>`;
+  } else {
+    bh+=`<div class="zone"><div class="zlbl">Drive Pile</div>`;
+    if(p.hazard) bh+=makeCard(p.hazard);
+    else if(p.remedied) bh+=`<div class="card remedy" style="outline:2px solid #e8a020">
+      <div class="card-top-band" style="background:#2a8a40"><span>Needs Roll!</span></div>
+      <div class="card-art"><div style="text-align:center;padding:8px;font-size:0.7rem;font-weight:700;color:#e8a020">▶ Play<br>Roll!</div></div>
+      <div class="card-bot-band" style="background:#e8a020"><span>Remedy</span></div>
+    </div>`;
+    else if(p.rolling) bh+=makeCard('roll');
+    else bh+=emptySlot('No Light');
+    bh+='</div>';
+  }
+
+  // Speed pile
+  if(isAI){
+    bh+=`<div class="zone">`;
+    if(p.speedLimit>0){
+      bh+=makeCard('speed_limit');
+      if(p.speedLimit>1) bh+=`<div style="font-family:'Bebas Neue',sans-serif;font-size:0.75rem;color:var(--gold);letter-spacing:0.05em;">×${p.speedLimit}</div>`;
+    } else bh+=emptySlot('No Limit');
+    bh+=`<div class="zlbl">Speed Pile</div></div>`;
+  } else {
+    bh+=`<div class="zone"><div class="zlbl">Speed Pile</div>`;
+    if(p.speedLimit>0){
+      bh+=makeCard('speed_limit');
+      if(p.speedLimit>1) bh+=`<div style="font-family:'Bebas Neue',sans-serif;font-size:0.75rem;color:var(--gold);letter-spacing:0.05em;">×${p.speedLimit}</div>`;
+    } else bh+=emptySlot('No Limit');
+    bh+='</div>';
+  }
+
+  // Safety tiles — 2×2 grid, dim when unplayed, lit when played, gold border for CF
+  if(isAI){
+    bh+=`<div class="zone"><div class="safety-tiles">`;
+    for(const sd of SAFETY_DEFS){
+      const played=p.safeties.includes(sd.id);
+      const isCF=p.coupFourre.includes(sd.id);
+      const cls=isCF?'stile played-cf':played?'stile played':'stile';
+      bh+=`<div class="${cls}">
+        <div class="stile-icon">${ART[sd.id]||''}</div>
+        <div class="stile-name">${sd.label}</div>
+        <span class="cf-badge">CF</span>
+      </div>`;
+    }
+    bh+=`</div><div class="zlbl">Safeties</div></div>`;
+  } else {
+    bh+=`<div class="zone"><div class="zlbl">Safeties</div><div class="safety-tiles">`;
+    for(const sd of SAFETY_DEFS){
+      const played=p.safeties.includes(sd.id);
+      const isCF=p.coupFourre.includes(sd.id);
+      const cls=isCF?'stile played-cf':played?'stile played':'stile';
+      bh+=`<div class="${cls}">
+        <div class="stile-icon">${ART[sd.id]||''}</div>
+        <div class="stile-name">${sd.label}</div>
+        <span class="cf-badge">CF</span>
+      </div>`;
+    }
+    bh+=`</div></div>`;
+  }
+
+  // Extension decision card — appears in the empty space when player hits 700
+  if(who==='human'&&GS.extensionPending){
+    bh+=`<div class="ext-card">
+      <div class="ext-card-title">🏁 700 km!</div>
+      <div class="ext-card-sub">Trip complete.<br>Extend to 1000?</div>
+      <div class="ext-card-btns">
+        <button class="btn btn-extend" onclick="declareExtension()">⟶ 1000</button>
+        <button class="btn btn-end-round" onclick="endRoundNow()">✓ End</button>
+      </div>
+    </div>`;
+  }
+
+  bel.innerHTML=bh;
+
+  // Distance pile — absolutely positioned on right side of player area, full height
+  // Rendered directly on the parea, not inside battle-row
+  const parea=document.getElementById(`${who}-area`);
+  let existingDist=parea.querySelector('.dist-pile-abs');
+  if(!existingDist){
+    existingDist=document.createElement('div');
+    existingDist.className='dist-pile-abs';
+    parea.appendChild(existingDist);
+  }
+  const CARD_H=128, MIN_PEEK=18, NATURAL_PEEK=30;
+  if(p.distancePlayed&&p.distancePlayed.length>0){
+    const cards=p.distancePlayed;
+    let cardHtml='';
+    cards.forEach((cid,i)=>{
+      const isTop=i===cards.length-1;
+      const top=i*NATURAL_PEEK;
+      // Use makeCard for identical rendering to hand cards.
+      // Art swap: to replace card art, update the ART object at the top of this file.
+      // makeCard is used everywhere (hand, drive pile, discard fan, distance pile) so one change covers all.
+      const cardInner=isTop?makeCard(cid):`<div class="card ${CARDS[cid].type}">
+        <div class="card-top-band" style="background:${TYPE_COLORS[CARDS[cid].type]||'#888'}"><span>${CARDS[cid].km} km</span></div>
+      </div>`;
+      cardHtml+=`<div class="dist-card-abs" style="top:${top}px;z-index:${i+1};">${cardInner}</div>`;
+    });
+    existingDist.innerHTML=`
+      <div class="dist-pile-label">Distance Played</div>
+      <div class="dist-pile-inner" id="dpi-${who}">${cardHtml}</div>
+      <div class="dist-km-badge">${p.km} km</div>`;
+    // After DOM update, recalculate peek to fit within actual container height
+    requestAnimationFrame(()=>{
+      const inner=document.getElementById(`dpi-${who}`);
+      if(!inner) return;
+      const availH=inner.offsetHeight;
+      const CARD_H=128, MIN_PEEK=18;
+      const naturalH=NATURAL_PEEK*(cards.length-1)+CARD_H;
+      if(naturalH>availH&&cards.length>1){
+        const actualPeek=Math.max(MIN_PEEK,Math.floor((availH-CARD_H)/(cards.length-1)));
+        inner.querySelectorAll('.dist-card-abs').forEach((el,i)=>{
+          el.style.top=`${i*actualPeek}px`;
+        });
+      }
+    });
+  } else {
+    existingDist.innerHTML=`
+      <div class="dist-pile-label">Distance Played</div>
+      <div class="dist-pile-inner dist-pile-empty">
+        <svg viewBox="0 0 40 40" width="36" height="36"><circle cx="20" cy="20" r="15" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="2" stroke-dasharray="4 3"/></svg>
+        <span>0 KM</span>
+      </div>`;
+  }
+
+  // (safeties now shown in tiles above, no separate strip needed)
+
+  // Hand
+  const hel=document.getElementById(`${who}-hand`);
+  if(who==='ai'){
+    hel.innerHTML=p.hand.map(()=>`<div class="card facedown"></div>`).join('');
+  } else {
+    const sortedIdx=who==='human'?sortedHandIndices():p.hand.map((_,i)=>i);
+    hel.innerHTML=sortedIdx.map((i)=>{
+      const cid=p.hand[i];
+      const isSel=GS.selected===i?'selected':'';
+      const isCFCard=GS.cfPending&&GS.cfPending.safetyId===cid?'cf-available':'';
+      const isDrawn=who==='human'&&i===GS.human.drawnCardIdx?'just-drawn':'';
+      return makeCard(cid,`hand-card ${isSel} ${isCFCard} ${isDrawn}`,
+        `onclick="selectCard(${i})" draggable="true" ondragstart="onDragStart(event,${i})" ondragend="onDragEnd(event)"`);
+    }).join('');
+  }
+}
+
+function selectCard(i){
+  if(GS.turn!=='human'||GS.roundOver) return;
+  GS.selected=GS.selected===i?null:i;
+  if(GS.selected!==null){
+    const cid=GS.human.hand[i];
+    setStatus(`Selected: ${CARDS[cid].name} — click Play or Discard, or drag to a target.`,'info');
+  } else clearDropHighlights();
+  render();
+}
+
+function setStatus(m,t='info'){
+  const e=document.getElementById('status');
+  e.textContent=m; e.className=`status ${t}`;
+}
+
+initProfileSystem();
+</script>
+</body>
+</html>
