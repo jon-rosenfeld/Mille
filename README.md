@@ -35,8 +35,7 @@ First to reach the km target wins the round. First to 5000 points wins the game.
 
 ## Running Locally
 
-No build step needed. Just open the HTML file in any modern browser
-
+No build step needed. Just open the HTML file in any modern browser.
 
 ## Card Art
 
