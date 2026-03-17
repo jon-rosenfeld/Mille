@@ -10,6 +10,8 @@ A browser-based implementation of the classic French card game Mille Bornes, pla
 
 Mille Bornes is a racing card game where you drive 700 km before your opponent by playing distance cards, managing hazards, and using safety cards to protect yourself. This version is a faithful single-player implementation with a custom AI opponent.
 
+*This is an unofficial fan implementation for personal use. Mille Bornes is a trademark of Asmodee/Dujardin.*
+
 ## How to Play
 
 Draw a card each turn, then play or discard one card from your hand.
@@ -54,4 +56,4 @@ Card IDs: `accident`, `out_of_gas`, `flat_tire`, `stop`, `speed_limit`, `repairs
 
 ## Version
 
-v2.0.3
+v2.0.4
